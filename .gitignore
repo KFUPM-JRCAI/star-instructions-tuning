@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 
 jrcai_corekit
-tuned_models
+experimental_hf_datasets
+**/tuned_models
