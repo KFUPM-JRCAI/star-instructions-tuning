@@ -3,8 +3,8 @@ dataset_path: experimental_hf_datasets/AraBench_dev/prompt_14561
 output_type: multiple_choice
 test_split: train
 doc_to_text: text
+doc_to_choice: choices
 doc_to_target: label
-doc_to_choice: ['Tunisian', 'MSA', 'Morrocan', 'Qatari', 'Egyptian', 'Lebanese']
 metric_list:
   - metric: acc
     aggregation: mean

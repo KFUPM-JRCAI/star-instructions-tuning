@@ -1,0 +1,15 @@
+task: tatoeba_mt_prompt_14889
+dataset_path: experimental_hf_datasets/tatoeba_mt/prompt_14889
+output_type: generate_until
+test_split: train
+doc_to_text: en
+doc_to_target: ar
+metric_list:
+  - metric: !function metrics.calculate_bleu
+    aggregation: !function metrics.calculate_blue_agg
+    higher_is_better: true
+generation_kwargs:
+    until:
+    - </s>
+metadata:
+  version: 1.0

@@ -1,0 +1,15 @@
+task: xlsum_prompt_14668
+dataset_path: experimental_hf_datasets/xlsum/prompt_14668
+output_type: generate_until
+test_split: train
+doc_to_text: text
+doc_to_target: summary
+metric_list:
+  - metric: !function metrics.calculate_bleu
+    aggregation: !function metrics.calculate_blue_agg
+    higher_is_better: true
+generation_kwargs:
+    until:
+    - </s>
+metadata:
+  version: 1.0

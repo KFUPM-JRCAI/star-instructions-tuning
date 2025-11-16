@@ -1,0 +1,16 @@
+task: ArabicMMLU_prompt_14869
+dataset_path: experimental_hf_datasets/ArabicMMLU/prompt_14869
+output_type: multiple_choice
+test_split: train
+doc_to_text: text
+doc_to_choice: choices
+doc_to_target: label
+metric_list:
+  - metric: acc
+    aggregation: mean
+    higher_is_better: True
+  - metric: acc_norm
+    aggregation: mean
+    higher_is_better: true
+metadata:
+  version: 1.0
