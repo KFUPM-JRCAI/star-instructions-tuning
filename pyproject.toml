@@ -1,0 +1,52 @@
+[project]
+name = "instructions-tuning"
+version = "0.1.0"
+description = "Fine-tuning LLMs on Arabic datasets across various NLP tasks"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = "MIT"
+dependencies = [
+    "python-dotenv",
+    "requests",
+    "tqdm",
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "transformers>=4.45.2",
+    "datasets",
+    "peft",
+    "evaluate",
+    "huggingface-hub",
+    "sacrebleu",
+    "matplotlib",
+    "seaborn",
+    "llms-corekit",
+    "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness",
+]
+
+[tool.uv]
+package = false
+index-strategy = "first-index"
+dev-dependencies = [
+    "ipykernel",
+    "jupyter",
+    "ipywidgets",
+]
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple/"
+default = true
+
+[[tool.uv.index]]
+name = "jrcai-proxy"
+url = "http://10.22.154.101:8081/repository/pypi_proxy/simple"
+authenticate = "never"
+
+[[tool.uv.index]]
+name = "jrcai-pytorch"
+url = "http://10.22.154.101:8081/repository/pypi-pytorch/simple"
+authenticate = "never"
+
+[tool.uv.sources]
+llms-corekit = { path = "jrcai_corekit", editable = true }
