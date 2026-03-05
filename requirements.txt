@@ -1,5 +1,0 @@
-python-dotenv
-matplotlib
-jinja2
-vllm
-lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@v0.4.11
