@@ -21,7 +21,7 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "llms-corekit",
-    "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness",
+    "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@v0.4.11",
 ]
 
 [tool.uv]
