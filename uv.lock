@@ -751,6 +751,15 @@ wheels = [
 ]
 
 [[package]]
+name = "entrypoints"
+version = "0.4"
+source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
+sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/entrypoints/0.4/entrypoints-0.4.tar.gz", hash = "sha256:b706eddaa9218a19ebcd67b56818f05bb27589b1ca9e8d797b74affad4ccacd4" }
+wheels = [
+    { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/entrypoints/0.4/entrypoints-0.4-py3-none-any.whl", hash = "sha256:f174b5ff827504fd3cd97cc3f8649f3693f51538c7e4bdf3ef002c8429d42f9f" },
+]
+
+[[package]]
 name = "evaluate"
 version = "0.4.6"
 source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
@@ -1228,6 +1237,7 @@ dev = [
     { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "jupyter" },
+    { name = "papermill" },
 ]
 
 [package.metadata]
@@ -1255,6 +1265,7 @@ dev = [
     { name = "ipykernel" },
     { name = "ipywidgets" },
     { name = "jupyter" },
+    { name = "papermill" },
 ]
 
 [[package]]
@@ -2663,6 +2674,26 @@ wheels = [
 ]
 
 [[package]]
+name = "papermill"
+version = "2.7.0"
+source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
+dependencies = [
+    { name = "aiohttp", marker = "python_full_version >= '3.12'" },
+    { name = "click" },
+    { name = "entrypoints" },
+    { name = "nbclient" },
+    { name = "nbformat" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "tenacity" },
+    { name = "tqdm" },
+]
+sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/papermill/2.7.0/papermill-2.7.0.tar.gz", hash = "sha256:ec10b37594a060662f57269e1ebd108c209d204450f00fdfeb70a1c7cfb7fbc8" }
+wheels = [
+    { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/papermill/2.7.0/papermill-2.7.0-py3-none-any.whl", hash = "sha256:e1855e6670100a02bb4f8a6870484a5c10b84a8d2e49c49921c90209940c7514" },
+]
+
+[[package]]
 name = "parso"
 version = "0.8.6"
 source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
@@ -3802,6 +3833,15 @@ source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
 sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tcolorpy/0.1.7/tcolorpy-0.1.7.tar.gz", hash = "sha256:0fbf6bf238890bbc2e32662aa25736769a29bf6d880328f310c910a327632614" }
 wheels = [
     { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tcolorpy/0.1.7/tcolorpy-0.1.7-py3-none-any.whl", hash = "sha256:26a59d52027e175a37e0aba72efc99dda43f074db71f55b316d3de37d3251378" },
+]
+
+[[package]]
+name = "tenacity"
+version = "9.1.4"
+source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
+sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tenacity/9.1.4/tenacity-9.1.4.tar.gz", hash = "sha256:adb31d4c263f2bd041081ab33b498309a57c77f9acf2db65aadf0898179cf93a" }
+wheels = [
+    { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tenacity/9.1.4/tenacity-9.1.4-py3-none-any.whl", hash = "sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55" },
 ]
 
 [[package]]
