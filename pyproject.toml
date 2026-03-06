@@ -12,7 +12,8 @@ dependencies = [
     "numpy",
     "pandas",
     "scikit-learn",
-    "transformers>=4.45.2",
+    "transformers",
+    "vllm>=0.14",
     "datasets",
     "peft",
     "evaluate",
@@ -21,7 +22,7 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "llms-corekit",
-    "lm-eval @ git+https://github.com/EleutherAI/lm-evaluation-harness@v0.4.11",
+    "lm-eval[vllm] @ git+https://github.com/EleutherAI/lm-evaluation-harness@v0.4.11",
 ]
 
 [tool.uv]
