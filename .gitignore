@@ -169,3 +169,5 @@ instruction-tuning-code-and-models.zip
 CLAUDE.md
 revision_todos.md
 slurm
+tmp
+.claude
