@@ -167,6 +167,6 @@ experimental_hf_datasets
 instruction-tuning-code-and-models.zip
 CLAUDE.md
 revision_todos.md
-slurm
+slurm/logs
 tmp
 .claude
