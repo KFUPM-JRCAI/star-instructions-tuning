@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit SLURM evaluation jobs for evaluate/*.ipynb notebooks.
+# Submit a single SLURM job that runs all evaluate/*.ipynb notebooks sequentially.
 # For *-tuned* notebooks, skips if no tuned model adapter exists under the task directory.
 # Usage: bash slurm/submit_eval_jobs.sh [--dry-run]
 
@@ -20,7 +20,8 @@ MODEL_NAME_MAP["Qwen"]="Qwen3-8B"
 
 mkdir -p "$PROJECT_DIR/slurm/logs"
 
-submitted=0
+# Collect all notebooks to evaluate
+notebooks=()
 skipped_no_adapter=0
 skipped_other=0
 
@@ -46,7 +47,6 @@ while IFS= read -r notebook; do
     # For tuned variants, check if the adapter exists anywhere under the task directory
     if [[ "$variant" == *tuned* ]]; then
         adapter_found=false
-        # Check same dataset first, then sibling datasets under the same task
         while IFS= read -r adapter; do
             adapter_found=true
             break
@@ -59,48 +59,80 @@ while IFS= read -r notebook; do
         fi
     fi
 
-    job_name="eval-${task_name}-${dataset_name}-${model_folder}-${variant}"
-    log_prefix="$PROJECT_DIR/slurm/logs/eval_${task_name}_${dataset_name}_${model_folder}_${variant}"
-    rel_notebook="${notebook#$PROJECT_DIR/}"
-
-    echo "SUBMIT: $task_name/$dataset_name/$model_folder/$variant"
-
-    if [[ "$DRY_RUN" == true ]]; then
-        ((submitted++)) || true
-        continue
-    fi
-
-    sbatch \
-        --job-name="$job_name" \
-        --partition=A100 \
-        --nodes=1 \
-        --ntasks=1 \
-        --gres=gpu:1 \
-        --output="${log_prefix}_%j.out" \
-        --error="${log_prefix}_%j.err" \
-        --wrap="
-cd '$PROJECT_DIR'
-
-echo 'Job ID: \$SLURM_JOB_ID'
-echo 'Node: \$SLURM_NODELIST'
-echo 'Started at: \$(date)'
-echo 'Notebook: $rel_notebook'
-
-uv run papermill \\
-    '$rel_notebook' \\
-    '$rel_notebook' \\
-    --cwd '$PROJECT_DIR' \\
-    --log-output \\
-    --log-level INFO \\
-    --progress-bar || true   # exit() in last cell causes non-zero; results are already saved
-
-echo 'Finished at: \$(date)'
-"
-    ((submitted++)) || true
+    echo "INCLUDE: $task_name/$dataset_name/$model_folder/$variant"
+    notebooks+=("$notebook")
 
 done < <(find "$PROJECT_DIR/Notebooks/Experiments" -path "*/evaluate/*.ipynb" \
     ! -path "*/cross_tasks_tuning/*" \
     ! -name "*cross-tasks*" | sort)
 
+total=${#notebooks[@]}
 echo ""
-echo "Done. Submitted: $submitted | Skipped (no adapter): $skipped_no_adapter | Skipped (other): $skipped_other"
+echo "Notebooks to run: $total | Skipped (no adapter): $skipped_no_adapter | Skipped (other): $skipped_other"
+
+if [[ "$total" -eq 0 ]]; then
+    echo "Nothing to submit."
+    exit 0
+fi
+
+if [[ "$DRY_RUN" == true ]]; then
+    echo "--- DRY RUN complete, no job submitted ---"
+    exit 0
+fi
+
+# Build the list of notebook paths as a newline-separated string for the job script
+notebook_list=""
+for nb in "${notebooks[@]}"; do
+    rel="${nb#$PROJECT_DIR/}"
+    notebook_list+="$rel"$'\n'
+done
+
+log_prefix="$PROJECT_DIR/slurm/logs/eval_all"
+
+sbatch \
+    --job-name="eval-all" \
+    --partition=A100 \
+    --nodes=1 \
+    --ntasks=1 \
+    --gres=gpu:1 \
+    --output="${log_prefix}_%j.out" \
+    --error="${log_prefix}_%j.err" \
+    --wrap="
+cd '$PROJECT_DIR'
+
+echo 'Job ID: \$SLURM_JOB_ID'
+echo 'Node: \$SLURM_NODELIST'
+echo 'Started at: \$(date)'
+echo 'Total notebooks: $total'
+echo ''
+
+counter=0
+failed=0
+
+while IFS= read -r rel_notebook; do
+    [[ -z \"\$rel_notebook\" ]] && continue
+    ((counter++)) || true
+    echo \"========================================\"
+    echo \"[\$counter/$total] \$rel_notebook\"
+    echo \"Started at: \$(date)\"
+    echo \"========================================\"
+
+    uv run papermill \\
+        \"\$rel_notebook\" \\
+        \"\$rel_notebook\" \\
+        --cwd '$PROJECT_DIR' \\
+        --log-output \\
+        --log-level INFO \\
+        --progress-bar || { echo \"WARN: \$rel_notebook exited non-zero (may be expected from exit())\"; }
+
+    echo \"Finished \$rel_notebook at: \$(date)\"
+    echo ''
+done <<'NOTEBOOK_LIST'
+${notebook_list}NOTEBOOK_LIST
+
+echo ''
+echo \"All done. Ran \$counter notebooks.\"
+echo 'Finished at: \$(date)'
+"
+
+echo "Submitted single SLURM job with $total notebooks."
