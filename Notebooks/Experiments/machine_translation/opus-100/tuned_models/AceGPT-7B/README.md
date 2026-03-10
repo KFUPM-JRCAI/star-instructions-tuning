@@ -1,5 +1,5 @@
 ---
-base_model: /hdd/shared_models/AceGPT-7B
+base_model: /raid_storage/shared_models/AceGPT-7B
 library_name: peft
 ---
 

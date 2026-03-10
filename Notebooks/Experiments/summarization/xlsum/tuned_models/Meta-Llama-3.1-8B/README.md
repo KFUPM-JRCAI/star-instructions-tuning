@@ -1,5 +1,5 @@
 ---
-base_model: /hdd/shared_models/Meta-Llama-3.1-8B
+base_model: /raid_storage/shared_models/Meta-Llama-3.1-8B
 library_name: peft
 ---
 
