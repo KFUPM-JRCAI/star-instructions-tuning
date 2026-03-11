@@ -60,7 +60,7 @@ DATASET_FUNCTIONS: dict[str, DatasetFunctions] = {
         apply_template=sarcasm_detection.apply_template,
         create_hf_dataset=sarcasm_detection.create_hf_dataset,
     ),
-    "iSarcasmEval_task_A": DatasetFunctions(  # eval only
+    "iSarcasmEval_task": DatasetFunctions(  # eval only
         apply_template=sarcasm_detection.apply_template,
         create_hf_dataset=sarcasm_detection.create_hf_dataset,
     ),
