@@ -23,6 +23,18 @@ MODEL_PATHS = {
 }
 
 DATASETS_CONFIG = {
+    "dialect_identification": {
+        "AraBench_dev": {
+            "hf_path": "MagedSaeed/arabench_dev_experimental",
+            "input_col": "arabic",
+            "splits": ["train", "test"],
+        },
+        "Arabic_Dialects_Dataset": {
+            "hf_path": "MagedSaeed/arabic_dialects_dataset_experimental",
+            "input_col": "Text",
+            "splits": ["test"],
+        },
+    },
     "summarization": {
         "xlsum": {
             "hf_path": "MagedSaeed/xlsum_arabic_experimental",
@@ -82,9 +94,12 @@ for task, ds_configs in DATASETS_CONFIG.items():
             split_ds = hf_ds[split]
             print(f"  {split}: {len(split_ds)} samples")
 
+            sides = [("input", ds_info["input_col"])]
+            if "output_col" in ds_info:
+                sides.append(("output", ds_info["output_col"]))
             for side, col in tqdm(
-                [("input", ds_info["input_col"]), ("output", ds_info["output_col"])],
-                desc=f"  {split} sides (input/output)",
+                sides,
+                desc=f"  {split} sides",
             ):
                 texts = split_ds[col]
                 for model_name, tokenizer in tokenizers.items():
@@ -133,9 +148,11 @@ for side in ["input", "output"]:
     print(stats_df[stats_df["Side"] == side].to_string())
 
 # Per-task stats
-for task in ["summarization", "machine_translation"]:
+for task in ["dialect_identification", "summarization", "machine_translation"]:
     for side in ["input", "output"]:
         task_side = [r for r in results if r["task"] == task and r["side"] == side]
+        if not task_side:
+            continue
         all_lengths = np.concatenate([r["token_lengths"] for r in task_side])
         print(f"\n=== {task.upper()} / {side.upper()} (all datasets, splits, tokenizers combined) ===")
         print(f"  Total samples (tokenized): {len(all_lengths)}")
