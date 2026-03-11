@@ -1203,6 +1203,18 @@ wheels = [
 ]
 
 [[package]]
+name = "fire"
+version = "0.7.1"
+source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
+dependencies = [
+    { name = "termcolor" },
+]
+sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/fire/0.7.1/fire-0.7.1.tar.gz", hash = "sha256:3b208f05c736de98fb343310d090dcc4d8c78b2a89ea4f32b837c586270a9cbf" }
+wheels = [
+    { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/fire/0.7.1/fire-0.7.1-py3-none-any.whl", hash = "sha256:e43fd8a5033a9001e7e2973bab96070694b9f12f2e0ecf96d4683971b5ab1882" },
+]
+
+[[package]]
 name = "flashinfer-python"
 version = "0.6.3"
 source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
@@ -1729,6 +1741,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "datasets" },
     { name = "evaluate" },
+    { name = "fire" },
     { name = "huggingface-hub" },
     { name = "llms-corekit" },
     { name = "lm-eval", extra = ["vllm"] },
@@ -1761,6 +1774,7 @@ dev = [
 requires-dist = [
     { name = "datasets" },
     { name = "evaluate" },
+    { name = "fire", specifier = ">=0.7.1" },
     { name = "huggingface-hub" },
     { name = "llms-corekit", editable = "jrcai_corekit" },
     { name = "lm-eval", extras = ["vllm"], git = "https://github.com/EleutherAI/lm-evaluation-harness?rev=v0.4.11" },
@@ -5212,6 +5226,15 @@ source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
 sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tenacity/9.1.4/tenacity-9.1.4.tar.gz", hash = "sha256:adb31d4c263f2bd041081ab33b498309a57c77f9acf2db65aadf0898179cf93a" }
 wheels = [
     { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/tenacity/9.1.4/tenacity-9.1.4-py3-none-any.whl", hash = "sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55" },
+]
+
+[[package]]
+name = "termcolor"
+version = "3.3.0"
+source = { registry = "http://10.22.154.101:8081/repository/pypi_proxy/simple" }
+sdist = { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/termcolor/3.3.0/termcolor-3.3.0.tar.gz", hash = "sha256:348871ca648ec6a9a983a13ab626c0acce02f515b9e1983332b17af7979521c5" }
+wheels = [
+    { url = "http://10.22.154.101:8081/repository/pypi_proxy/packages/termcolor/3.3.0/termcolor-3.3.0-py3-none-any.whl", hash = "sha256:cf642efadaf0a8ebbbf4bc7a31cec2f9b5f21a9f726f4ccbb08192c9c26f43a5" },
 ]
 
 [[package]]

@@ -24,6 +24,7 @@ dependencies = [
     "llms-corekit",
     "lm-eval[vllm] @ git+https://github.com/EleutherAI/lm-evaluation-harness@v0.4.11",
     "tokenizers>=0.22.2",
+    "fire>=0.7.1",
 ]
 
 [tool.uv]
