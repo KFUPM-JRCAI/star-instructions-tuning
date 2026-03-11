@@ -46,11 +46,11 @@ DATASET_FUNCTIONS: dict[str, DatasetFunctions] = {
     "ArabicMMLU": DatasetFunctions(
         preprocess_template=nlu.preprocess_template,
         generate_tuple=nlu.generate_tuple,
-        apply_template=nlu.apply_template,
+        apply_template=nlu.arabic_mmlu_apply_template,
         create_hf_dataset=nlu.arabic_mmlu_create_hf_dataset,
     ),
     "belebele": DatasetFunctions(  # eval only
-        apply_template=nlu.apply_template,
+        apply_template=nlu.belebele_apply_template,
         create_hf_dataset=nlu.belebele_create_hf_dataset,
     ),
     # Sarcasm Detection

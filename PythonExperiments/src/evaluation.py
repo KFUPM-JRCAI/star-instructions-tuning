@@ -40,18 +40,24 @@ MAX_MODEL_LEN_CAP = 8192
 MULTIPLE_CHOICE_TASKS = {"dialect_identification", "NLI", "NLU", "sarcasm_detection"}
 
 
-def _init_hflm(model_path: str, adapter_path: str | None):
+def _init_hflm(model_path: str, adapter_path: str | None, batch_size: int):
     """Initialise HFLM for multiple_choice (loglikelihood) tasks."""
+    from transformers import AutoConfig
     from lm_eval.models.huggingface import HFLM
 
-    print("[Eval] Using HFLM backend (multiple_choice task)")
+    config = AutoConfig.from_pretrained(model_path)
+    model_max_len = getattr(config, "max_position_embeddings", None) or MAX_MODEL_LEN_CAP
+    max_length = min(model_max_len, MAX_MODEL_LEN_CAP)
+
+    print(f"[Eval] Using HFLM backend (multiple_choice task, max_length={max_length}, batch_size={batch_size})")
     kwargs = dict(
         pretrained=model_path,
         trust_remote_code=True,
         parallelize=True,
         device_map="auto",
         tokenizer=model_path,
-        batch_size=40,
+        batch_size=batch_size,
+        max_length=max_length,
     )
     if adapter_path:
         kwargs["peft"] = adapter_path
@@ -251,7 +257,8 @@ def run_evaluation(
 
     # ── Initialize model ──
     if task_name in MULTIPLE_CHOICE_TASKS:
-        lm_obj = _init_hflm(model_path, adapter_path)
+        batch_size = experiment.get_eval_batch_size(dataset_name)
+        lm_obj = _init_hflm(model_path, adapter_path, batch_size)
     else:
         lm_obj = _init_vllm(model_path, adapter_path)
 

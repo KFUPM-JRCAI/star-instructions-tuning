@@ -16,6 +16,12 @@ class ExperimentConfig:
     training_params: dict = field(default_factory=dict)
     # dataset_name -> promptlab dataset name (when it differs from folder name)
     promptlab_dataset_names: dict[str, str] = field(default_factory=dict)
+    # dataset_name -> HFLM eval batch size (classification tasks only)
+    eval_batch_sizes: dict[str, int] = field(default_factory=dict)
+
+    def get_eval_batch_size(self, dataset_name: str, default: int = 40) -> int:
+        """Get HFLM batch size for a dataset (classification tasks only)."""
+        return self.eval_batch_sizes.get(dataset_name, default)
 
     def get_promptlab_name(self, dataset_name: str) -> str:
         """Get the PromptLab dataset name (may differ from folder name)."""
@@ -38,6 +44,9 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         prompt_ids={
             "AraBench_dev": [14852, 14850, 14789, 14781, 14561],
             "Arabic_Dialects_Dataset": [14102, 14783, 14784, 14790, 14851],
+        },
+        eval_batch_sizes={
+            "Arabic_Dialects_Dataset": 16,
         },
         training_params={
             "learning_rate": 2.5e-4,

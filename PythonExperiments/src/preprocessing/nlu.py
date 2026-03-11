@@ -26,8 +26,8 @@ def generate_tuple(sample: str) -> tuple[str, str]:
     return prefix, suffix
 
 
-# Used by both ArabicMMLU and belebele
-def apply_template(
+# Used by ArabicMMLU (dynamic answer_choices filtering)
+def arabic_mmlu_apply_template(
     prompt_template: dict, sample: dict, for_tuning: bool = False
 ) -> str:
     template = prompt_template["template"]
@@ -43,6 +43,21 @@ def apply_template(
                 sample[choice] = None
         else:
             sample[choice] = None
+    env = Environment(undefined=StrictUndefined)
+    if not for_tuning and "|||" not in template:
+        raise ValueError("No ||| divider")
+    tmpl = env.from_string(template)
+    return tmpl.render(**sample)
+
+
+# Used by belebele (static answer_choices, no filtering)
+def belebele_apply_template(
+    prompt_template: dict, sample: dict, for_tuning: bool = False
+) -> str:
+    template = prompt_template["template"]
+    if for_tuning:
+        template = preprocess_template(template)
+    sample["answer_choices"] = prompt_template["answer_choices"]
     env = Environment(undefined=StrictUndefined)
     if not for_tuning and "|||" not in template:
         raise ValueError("No ||| divider")
