@@ -15,9 +15,10 @@ cd "$PROJECT_DIR"
 
 # Map model folder name -> MODEL_NAME used in tuned_models output dir
 declare -A MODEL_NAME_MAP
-MODEL_NAME_MAP["AceGPT"]="AceGPT-7B"
-MODEL_NAME_MAP["Llama"]="Meta-Llama-3.1-8B"
-MODEL_NAME_MAP["Qwen"]="Qwen3-8B"
+MODEL_NAME_MAP["AceGPT-v1-7B"]="AceGPT-v1-7B"
+MODEL_NAME_MAP["AceGPT-v2-8B"]="AceGPT-v2-8B"
+MODEL_NAME_MAP["Llama-3.1-8B"]="Meta-Llama-3.1-8B"
+MODEL_NAME_MAP["Qwen3-8B"]="Qwen3-8B"
 
 # Tasks, primary datasets, and secondary datasets
 declare -A TASK_PRIMARY_DATASET
@@ -36,7 +37,7 @@ TASK_SECONDARY_DATASETS["NLU"]="belebele"
 TASK_SECONDARY_DATASETS["sarcasm_detection"]="iSarcasmEval_task"
 TASK_SECONDARY_DATASETS["summarization"]="AraSum"
 
-MODEL_FOLDERS=("AceGPT" "Llama" "Qwen")
+MODEL_FOLDERS=("AceGPT-v1-7B" "AceGPT-v2-8B" "Llama-3.1-8B" "Qwen3-8B")
 VARIANTS=("base" "chat" "tuned")
 
 # Collect all eval commands

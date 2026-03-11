@@ -3,7 +3,7 @@ Token length analysis script.
 
 Computes token-length statistics (mean, median, P90, P95, P99, max) for
 input and output columns of summarization and machine-translation datasets
-across multiple tokenizers (AceGPT, Llama, Qwen).
+across multiple tokenizers (AceGPT-v1-7B, AceGPT-v2-8B, Llama-3.1-8B, Qwen3-8B).
 """
 
 import numpy as np
@@ -17,8 +17,9 @@ from transformers import AutoTokenizer
 # ============================================================
 
 MODEL_PATHS = {
-    "AceGPT-7B": "/raid_storage/shared_models/AceGPT-7B",
-    "Meta-Llama-3.1-8B": "/raid_storage/shared_models/Meta-Llama-3.1-8B",
+    "AceGPT-v1-7B": "/raid_storage/shared_models/AceGPT-7B",
+    "AceGPT-v2-8B": "/raid_storage/shared_models/AceGPT-v2-8B",
+    "Llama-3.1-8B": "/raid_storage/shared_models/Meta-Llama-3.1-8B",
     "Qwen3-8B": "/raid_storage/shared_models/Qwen3-8B-Base",
 }
 

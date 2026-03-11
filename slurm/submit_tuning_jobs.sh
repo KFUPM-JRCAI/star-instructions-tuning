@@ -14,9 +14,10 @@ fi
 
 # Map model folder name -> MODEL_NAME used in tuned_models output dir
 declare -A MODEL_NAME_MAP
-MODEL_NAME_MAP["AceGPT"]="AceGPT-7B"
-MODEL_NAME_MAP["Llama"]="Meta-Llama-3.1-8B"
-MODEL_NAME_MAP["Qwen"]="Qwen3-8B"
+MODEL_NAME_MAP["AceGPT-v1-7B"]="AceGPT-v1-7B"
+MODEL_NAME_MAP["AceGPT-v2-8B"]="AceGPT-v2-8B"
+MODEL_NAME_MAP["Llama-3.1-8B"]="Meta-Llama-3.1-8B"
+MODEL_NAME_MAP["Qwen3-8B"]="Qwen3-8B"
 
 # Tasks and their primary datasets
 declare -A TASK_PRIMARY_DATASET
@@ -27,7 +28,7 @@ TASK_PRIMARY_DATASET["NLU"]="ArabicMMLU"
 TASK_PRIMARY_DATASET["sarcasm_detection"]="ArSarcasm_v2"
 TASK_PRIMARY_DATASET["summarization"]="xlsum"
 
-MODEL_FOLDERS=("AceGPT" "Llama" "Qwen")
+MODEL_FOLDERS=("AceGPT-v1-7B" "AceGPT-v2-8B" "Llama-3.1-8B" "Qwen3-8B")
 
 mkdir -p "$PROJECT_DIR/slurm/logs"
 

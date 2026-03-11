@@ -2,8 +2,8 @@
 """CLI entry point for fine-tuning.
 
 Usage:
-    uv run python PythonExperiments/tune.py --task dialect_identification --model AceGPT
-    uv run python PythonExperiments/tune.py --task summarization --model Llama --gpus 0,1
+    uv run python PythonExperiments/tune.py --task dialect_identification --model AceGPT-v1-7B
+    uv run python PythonExperiments/tune.py --task summarization --model Llama-3.1-8B --gpus 0,1
 """
 
 import argparse
@@ -27,7 +27,7 @@ def main():
     parser.add_argument(
         "--model",
         required=True,
-        choices=["AceGPT", "Llama", "Qwen"],
+        choices=["AceGPT-v1-7B", "AceGPT-v2-8B", "Llama-3.1-8B", "Qwen3-8B"],
         help="Model family to fine-tune",
     )
     parser.add_argument(

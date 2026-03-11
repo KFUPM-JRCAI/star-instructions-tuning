@@ -61,20 +61,32 @@ class ModelConfig:
 
 
 MODELS: dict[str, ModelConfig] = {
-    "AceGPT": ModelConfig(
-        name="AceGPT-7B",
+    "AceGPT-v1-7B": ModelConfig(
+        name="AceGPT-v1-7B",
         path="/raid_storage/shared_models/AceGPT-7B",
         chat_path="/raid_storage/shared_models/AceGPT-7B-chat",
         initializer_name="Llama3Initializer",
         lora_name="llama_3",
         results_names={
-            "base": "AceGPT-7B",
-            "chat": "AceGPT-7B-chat",
-            "tuned": "AceGPT-7B-tuned",
+            "base": "AceGPT-v1-7B",
+            "chat": "AceGPT-v1-7B-chat",
+            "tuned": "AceGPT-v1-7B-tuned",
         },
     ),
-    "Llama": ModelConfig(
-        name="Meta-Llama-3.1-8B",
+    "AceGPT-v2-8B": ModelConfig(
+        name="AceGPT-v2-8B",
+        path="/raid_storage/shared_models/AceGPT-v2-8B",
+        chat_path="/raid_storage/shared_models/AceGPT-v2-8B-Chat",
+        initializer_name="Llama3Initializer",
+        lora_name="llama_3",
+        results_names={
+            "base": "AceGPT-v2-8B",
+            "chat": "AceGPT-v2-8B-Chat",
+            "tuned": "AceGPT-v2-8B-tuned",
+        },
+    ),
+    "Llama-3.1-8B": ModelConfig(
+        name="Llama-3.1-8B",
         path="/raid_storage/shared_models/Meta-Llama-3.1-8B",
         chat_path="/raid_storage/shared_models/Meta-Llama-3.1-8B-Instruct",
         initializer_name="Llama31Initializer",
@@ -85,7 +97,7 @@ MODELS: dict[str, ModelConfig] = {
             "tuned": "Meta-Llama-3.1-8B-tuned",
         },
     ),
-    "Qwen": ModelConfig(
+    "Qwen3-8B": ModelConfig(
         name="Qwen3-8B",
         path="/raid_storage/shared_models/Qwen3-8B-Base",
         chat_path="/raid_storage/shared_models/Qwen3-8B",
@@ -102,9 +114,10 @@ MODELS: dict[str, ModelConfig] = {
 
 # Reverse lookup: model folder name -> model key
 MODEL_FOLDER_KEYS = {
-    "AceGPT": "AceGPT",
-    "Llama": "Llama",
-    "Qwen": "Qwen",
+    "AceGPT-v1-7B": "AceGPT-v1-7B",
+    "AceGPT-v2-8B": "AceGPT-v2-8B",
+    "Llama-3.1-8B": "Llama-3.1-8B",
+    "Qwen3-8B": "Qwen3-8B",
 }
 
 
@@ -125,8 +138,9 @@ def get_results_dir_name(model_key: str, variant: str) -> str:
     """Get the model name used in evaluation_results/ directories.
 
     Explicit mapping to match existing directory names:
-    - AceGPT: AceGPT-7B, AceGPT-7B-chat, AceGPT-7B-tuned
-    - Llama: Meta-Llama-3.1-8B, Meta-Llama-3.1-8B-Instruct, Meta-Llama-3.1-8B-tuned
-    - Qwen: Qwen3-8B, Qwen3-8B-chat, Qwen3-8B-tuned
+    - AceGPT-v1-7B: AceGPT-v1-7B, AceGPT-v1-7B-chat, AceGPT-v1-7B-tuned
+    - AceGPT-v2-8B: AceGPT-v2-8B, AceGPT-v2-8B-Chat, AceGPT-v2-8B-tuned
+    - Llama-3.1-8B: Meta-Llama-3.1-8B, Meta-Llama-3.1-8B-Instruct, Meta-Llama-3.1-8B-tuned
+    - Qwen3-8B: Qwen3-8B, Qwen3-8B-chat, Qwen3-8B-tuned
     """
     return MODELS[model_key].results_names[variant]

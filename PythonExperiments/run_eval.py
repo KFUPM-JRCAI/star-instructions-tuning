@@ -2,9 +2,9 @@
 """CLI entry point for evaluation.
 
 Usage:
-    uv run python PythonExperiments/run_eval.py --task dialect_identification --dataset AraBench_dev --model AceGPT --variant base
-    uv run python PythonExperiments/run_eval.py --task dialect_identification --dataset all --model AceGPT --variant tuned --gpus 0
-    uv run python PythonExperiments/run_eval.py --task summarization --dataset xlsum --model Llama --variant chat
+    uv run python PythonExperiments/run_eval.py --task dialect_identification --dataset AraBench_dev --model AceGPT-v1-7B --variant base
+    uv run python PythonExperiments/run_eval.py --task dialect_identification --dataset all --model AceGPT-v1-7B --variant tuned --gpus 0
+    uv run python PythonExperiments/run_eval.py --task summarization --dataset xlsum --model Llama-3.1-8B --variant chat
 """
 
 import sys
@@ -29,7 +29,7 @@ def main(
     Args:
         task: Task name (e.g. dialect_identification, summarization).
         dataset: Dataset name (e.g. AraBench_dev) or 'all' for all datasets.
-        model: Model family (AceGPT, Llama, Qwen).
+        model: Model family (AceGPT-v1-7B, AceGPT-v2-8B, Llama-3.1-8B, Qwen3-8B).
         variant: Model variant to evaluate (base, chat, tuned).
         gpus: Comma-separated GPU IDs (default: all available).
         force_re_evaluate: Re-evaluate even if results already exist.
@@ -38,8 +38,8 @@ def main(
         print(f"Error: Unknown task '{task}'. Available: {list(EXPERIMENTS.keys())}")
         sys.exit(1)
 
-    if model not in ("AceGPT", "Llama", "Qwen"):
-        print(f"Error: Unknown model '{model}'. Choose from: AceGPT, Llama, Qwen")
+    if model not in ("AceGPT-v1-7B", "AceGPT-v2-8B", "Llama-3.1-8B", "Qwen3-8B"):
+        print(f"Error: Unknown model '{model}'. Choose from: AceGPT-v1-7B, AceGPT-v2-8B, Llama-3.1-8B, Qwen3-8B")
         sys.exit(1)
 
     if variant not in ("base", "chat", "tuned"):

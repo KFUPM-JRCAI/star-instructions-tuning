@@ -170,3 +170,4 @@ revision_todos.md
 slurm/logs
 tmp
 .claude
+openrouter_eval/cache

@@ -87,7 +87,7 @@ def run_tuning(task_name: str, model_key: str) -> None:
     print(f"[Tuning] Train: {len(train_samples)} | Eval: {len(eval_samples)}")
 
     # ── Save samples to JSON ──
-    # Determine the model folder name (AceGPT, Llama, Qwen)
+    # Determine the model folder name (AceGPT-v1-7B, AceGPT-v2-8B, Llama-3.1-8B, Qwen3-8B)
     model_folder = model_key
     samples_dir = f"Notebooks/Experiments/{task_name}/{dataset_name}/{model_folder}/samples_used_for_tuning"
     os.makedirs(samples_dir, exist_ok=True)
