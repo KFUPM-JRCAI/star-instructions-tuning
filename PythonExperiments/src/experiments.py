@@ -37,7 +37,7 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         },
         prompt_ids={
             "AraBench_dev": [14852, 14850, 14789, 14781, 14561],
-            "Arabic_Dialects_Dataset": [14852, 14850, 14789, 14781, 14561],
+            "Arabic_Dialects_Dataset": [14102, 14783, 14784, 14790, 14851],
         },
         training_params={
             "learning_rate": 2.5e-4,
