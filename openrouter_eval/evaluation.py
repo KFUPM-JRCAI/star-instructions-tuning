@@ -137,11 +137,23 @@ def _load_existing_results(results_file: str) -> dict | None:
 # ── Main entry point ──────────────────────────────────────────────────────────
 
 
+def clear_prompt_cache(promptlab_name: str, prompt_id: int) -> None:
+    """Delete cached API response .db files for a single prompt."""
+    import glob
+    if not os.path.exists(CACHE_DIR):
+        return
+    pattern = os.path.join(CACHE_DIR, f"{promptlab_name}_prompt_{prompt_id}*")
+    for f in glob.glob(pattern):
+        os.remove(f)
+        print(f"[Cache] Removed: {os.path.basename(f)}")
+
+
 def run_evaluation(
     task_name: str,
     dataset_name: str,
     api_model: str,
     force_re_evaluate: bool = False,
+    clear_cache: bool = False,
 ) -> None:
     """Run the full evaluation pipeline for a task + dataset via OpenRouter API."""
     from lm_eval.utils import make_table
@@ -152,6 +164,10 @@ def run_evaluation(
 
     model_name = results_dir_name(api_model)
     promptlab_name = experiment.get_promptlab_name(dataset_name)
+
+    if clear_cache:
+        for prompt_id in prompt_ids:
+            clear_prompt_cache(promptlab_name, prompt_id)
 
     print(f"[Eval] Task: {task_name}")
     print(f"[Eval] Dataset: {dataset_name} (promptlab: {promptlab_name})")

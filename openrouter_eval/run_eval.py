@@ -36,6 +36,7 @@ def main(
     dataset: str = "all",
     api_model: str = "google/gemini-3.1-pro-preview",
     force_re_evaluate: bool = False,
+    clear_cache: bool = False,
 ):
     """Evaluate an API model on a task dataset via OpenRouter.
 
@@ -44,6 +45,7 @@ def main(
         dataset: Dataset name or 'all' for all datasets in the task (default: all).
         api_model: OpenRouter model ID (default: google/gemini-3.1-pro-preview).
         force_re_evaluate: Re-evaluate even if results exist.
+        clear_cache: Delete cached API responses for the specified task/dataset before running.
     """
     if task not in EXPERIMENTS:
         print(f"Error: Unknown task '{task}'. Available: {list(EXPERIMENTS.keys())}")
@@ -73,6 +75,7 @@ def main(
             dataset_name=dataset_name,
             api_model=api_model,
             force_re_evaluate=force_re_evaluate,
+            clear_cache=clear_cache,
         )
 
 
