@@ -1,5 +1,6 @@
 #!/bin/bash
-# Submit SLURM tuning jobs for any tune.ipynb that hasn't produced a tuned model yet.
+# Submit SLURM tuning jobs for each task/model that hasn't produced a tuned model yet.
+# Uses PythonExperiments/tune.py instead of papermill.
 # Usage: bash slurm/submit_tuning_jobs.sh [--dry-run]
 
 set -euo pipefail
@@ -17,67 +18,64 @@ MODEL_NAME_MAP["AceGPT"]="AceGPT-7B"
 MODEL_NAME_MAP["Llama"]="Meta-Llama-3.1-8B"
 MODEL_NAME_MAP["Qwen"]="Qwen3-8B"
 
+# Tasks and their primary datasets
+declare -A TASK_PRIMARY_DATASET
+TASK_PRIMARY_DATASET["dialect_identification"]="AraBench_dev"
+TASK_PRIMARY_DATASET["machine_translation"]="opus-100"
+TASK_PRIMARY_DATASET["NLI"]="ArEntail"
+TASK_PRIMARY_DATASET["NLU"]="ArabicMMLU"
+TASK_PRIMARY_DATASET["sarcasm_detection"]="ArSarcasm_v2"
+TASK_PRIMARY_DATASET["summarization"]="xlsum"
+
+MODEL_FOLDERS=("AceGPT" "Llama" "Qwen")
+
 mkdir -p "$PROJECT_DIR/slurm/logs"
 
 submitted=0
 skipped=0
 
-while IFS= read -r notebook; do
-    model_dir=$(dirname "$notebook")
-    model_folder=$(basename "$model_dir")
-    dataset_dir=$(dirname "$model_dir")
-    dataset_name=$(basename "$dataset_dir")
-    task_name=$(basename "$(dirname "$dataset_dir")")
+for task_name in "${!TASK_PRIMARY_DATASET[@]}"; do
+    dataset_name="${TASK_PRIMARY_DATASET[$task_name]}"
 
-    model_name="${MODEL_NAME_MAP[$model_folder]:-}"
-    if [[ -z "$model_name" ]]; then
-        echo "WARNING: Unknown model folder '$model_folder', skipping: $notebook"
-        continue
-    fi
+    for model_folder in "${MODEL_FOLDERS[@]}"; do
+        model_name="${MODEL_NAME_MAP[$model_folder]}"
+        tuned_model_dir="$PROJECT_DIR/Notebooks/Experiments/$task_name/$dataset_name/tuned_models/$model_name"
 
-    tuned_model_dir="$dataset_dir/tuned_models/$model_name"
+        if [[ -f "$tuned_model_dir/adapter_config.json" ]]; then
+            echo "SKIP (already done): $task_name/$model_folder -> $tuned_model_dir"
+            ((skipped++)) || true
+            continue
+        fi
 
-    if [[ -f "$tuned_model_dir/adapter_config.json" ]]; then
-        echo "SKIP (already done): $task_name/$dataset_name/$model_folder -> $tuned_model_dir"
-        ((skipped++)) || true
-        continue
-    fi
+        job_name="tune-${task_name}-${dataset_name}-${model_folder}"
+        log_prefix="$PROJECT_DIR/slurm/logs/${task_name}_${dataset_name}_${model_folder}"
 
-    job_name="tune-${task_name}-${dataset_name}-${model_folder}"
-    log_prefix="$PROJECT_DIR/slurm/logs/${task_name}_${dataset_name}_${model_folder}"
-    rel_notebook="${notebook#$PROJECT_DIR/}"
+        echo "SUBMIT: $task_name/$dataset_name/$model_folder"
 
-    echo "SUBMIT: $task_name/$dataset_name/$model_folder -> $tuned_model_dir"
+        if [[ "$DRY_RUN" == true ]]; then
+            ((submitted++)) || true
+            continue
+        fi
 
-    if [[ "$DRY_RUN" == true ]]; then
-        ((submitted++)) || true
-        continue
-    fi
-
-    # The notebook calls exit() as its last cell to free GPU memory.
-    # papermill exits non-zero on SystemExit, so we check adapter_config.json for real success.
-    sbatch \
-        --job-name="$job_name" \
-        --partition=A100 \
-        --nodes=1 \
-        --ntasks=1 \
-        --gres=gpu:4 \
-        --output="${log_prefix}_%j.out" \
-        --error="${log_prefix}_%j.err" \
-        --wrap="
+        # tune.py calls sys.exit(0) after training, so we check adapter_config.json for real success.
+        sbatch \
+            --job-name="$job_name" \
+            --partition=A100 \
+            --nodes=1 \
+            --ntasks=1 \
+            --gres=gpu:4 \
+            --output="${log_prefix}_%j.out" \
+            --error="${log_prefix}_%j.err" \
+            --wrap="
 cd '$PROJECT_DIR'
 
 echo 'Job ID: \$SLURM_JOB_ID'
 echo 'Node: \$SLURM_NODELIST'
 echo 'Started at: \$(date)'
 
-uv run papermill \\
-    '$rel_notebook' \\
-    '$rel_notebook' \\
-    --cwd '$PROJECT_DIR' \\
-    --log-output \\
-    --log-level INFO \\
-    --progress-bar || true   # exit() in last cell causes non-zero; model is already saved
+uv run python PythonExperiments/tune.py \\
+    --task '$task_name' \\
+    --model '$model_folder' || true
 
 if [[ -f '$tuned_model_dir/adapter_config.json' ]]; then
     echo 'SUCCESS: adapter saved at $tuned_model_dir'
@@ -88,9 +86,9 @@ fi
 
 echo 'Finished at: \$(date)'
 "
-    ((submitted++)) || true
-
-done < <(find "$PROJECT_DIR/Notebooks/Experiments" -name "tune.ipynb" | sort)
+        ((submitted++)) || true
+    done
+done
 
 echo ""
 echo "Done. Submitted: $submitted | Skipped (already done): $skipped"
