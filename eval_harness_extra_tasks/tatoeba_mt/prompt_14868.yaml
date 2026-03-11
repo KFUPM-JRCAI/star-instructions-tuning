@@ -6,10 +6,15 @@ doc_to_text: en
 doc_to_target: ar
 metric_list:
   - metric: !function metrics.calculate_bleu
-    aggregation: !function metrics.calculate_blue_agg
+    aggregation: !function metrics.calculate_bleu_agg
     higher_is_better: true
 generation_kwargs:
+    max_new_tokens: 512
     until:
     - </s>
+    - <|eot_id|>
+    - <|end_of_text|>
+    - <|endoftext|>
+    - <|im_end|>
 metadata:
   version: 1.0
