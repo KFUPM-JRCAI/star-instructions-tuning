@@ -37,13 +37,35 @@ def _resolve_adapter_path(task_name: str, experiment, model_config) -> str:
 
 MAX_MODEL_LEN_CAP = 8192
 
+MULTIPLE_CHOICE_TASKS = {"dialect_identification", "NLI", "NLU", "sarcasm_detection"}
+
+
+def _init_hflm(model_path: str, adapter_path: str | None):
+    """Initialise HFLM for multiple_choice (loglikelihood) tasks."""
+    from lm_eval.models.huggingface import HFLM
+
+    print("[Eval] Using HFLM backend (multiple_choice task)")
+    kwargs = dict(
+        pretrained=model_path,
+        trust_remote_code=True,
+        parallelize=True,
+        device_map="auto",
+        tokenizer=model_path,
+        batch_size=40,
+    )
+    if adapter_path:
+        kwargs["peft"] = adapter_path
+
+    return HFLM(**kwargs)
+
 
 def _init_vllm(model_path: str, adapter_path: str | None):
-    """Initialise the VLLM model used by lm-eval."""
+    """Initialise VLLM for generate_until tasks."""
     import torch
     from transformers import AutoConfig
     from lm_eval.models.vllm_causallms import VLLM
 
+    print("[Eval] Using VLLM backend (generate_until task)")
     tp_size = torch.cuda.device_count()
 
     config = AutoConfig.from_pretrained(model_path)
@@ -228,7 +250,10 @@ def run_evaluation(
     )
 
     # ── Initialize model ──
-    lm_obj = _init_vllm(model_path, adapter_path)
+    if task_name in MULTIPLE_CHOICE_TASKS:
+        lm_obj = _init_hflm(model_path, adapter_path)
+    else:
+        lm_obj = _init_vllm(model_path, adapter_path)
 
     # ── Evaluate each prompt ──
     print(f"[Eval] Evaluating {len(prompts)} prompts sequentially")
