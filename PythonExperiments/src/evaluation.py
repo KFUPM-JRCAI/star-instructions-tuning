@@ -29,10 +29,7 @@ from .promptlab import fetch_prompts, filter_prompts, get_dataset_prompts
 
 def _resolve_adapter_path(task_name: str, experiment, model_config) -> str:
     """Return the LoRA adapter directory (always under the primary dataset)."""
-    return (
-        f"Notebooks/Experiments/{task_name}/{experiment.primary_dataset}"
-        f"/tuned_models/{model_config.name}"
-    )
+    return f"tuned_models/{task_name}/{experiment.primary_dataset}/{model_config.name}"
 
 
 MAX_MODEL_LEN_CAP = 8192

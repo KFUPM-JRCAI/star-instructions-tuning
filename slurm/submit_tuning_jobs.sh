@@ -12,13 +12,6 @@ if [[ "${1:-}" == "--dry-run" ]]; then
     echo "--- DRY RUN mode (no jobs will be submitted) ---"
 fi
 
-# Map model folder name -> MODEL_NAME used in tuned_models output dir
-declare -A MODEL_NAME_MAP
-MODEL_NAME_MAP["AceGPT-v1-7B"]="AceGPT-v1-7B"
-MODEL_NAME_MAP["AceGPT-v2-8B"]="AceGPT-v2-8B"
-MODEL_NAME_MAP["Llama-3.1-8B"]="Meta-Llama-3.1-8B"
-MODEL_NAME_MAP["Qwen3-8B"]="Qwen3-8B"
-
 # Tasks and their primary datasets
 declare -A TASK_PRIMARY_DATASET
 TASK_PRIMARY_DATASET["dialect_identification"]="AraBench_dev"
@@ -39,8 +32,7 @@ for task_name in "${!TASK_PRIMARY_DATASET[@]}"; do
     dataset_name="${TASK_PRIMARY_DATASET[$task_name]}"
 
     for model_folder in "${MODEL_FOLDERS[@]}"; do
-        model_name="${MODEL_NAME_MAP[$model_folder]}"
-        tuned_model_dir="$PROJECT_DIR/Notebooks/Experiments/$task_name/$dataset_name/tuned_models/$model_name"
+        tuned_model_dir="$PROJECT_DIR/tuned_models/$task_name/$dataset_name/$model_folder"
 
         if [[ -f "$tuned_model_dir/adapter_config.json" ]]; then
             echo "SKIP (already done): $task_name/$model_folder -> $tuned_model_dir"
