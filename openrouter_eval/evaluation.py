@@ -91,8 +91,8 @@ def _init_model(api_model: str):
         model=api_model,
         base_url=OPENROUTER_BASE_URL,
         num_concurrent=4,
-        max_retries=5,
-        timeout=120,
+        max_retries=10,
+        timeout=300,
     )
 
 
