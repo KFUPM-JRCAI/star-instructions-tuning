@@ -83,11 +83,11 @@ def _collect_model_variants() -> list[tuple[str, str, str]]:
     return entries
 
 
-def _collect_openrouter_models() -> list[str]:
+def _collect_openrouter_models(root: Path = OPENROUTER_RESULTS_ROOT) -> list[str]:
     """Return list of OpenRouter model names that have results."""
-    if not OPENROUTER_RESULTS_ROOT.exists():
+    if not root.exists():
         return []
-    return [d.name for d in OPENROUTER_RESULTS_ROOT.iterdir() if d.is_dir()]
+    return [d.name for d in root.iterdir() if d.is_dir()]
 
 
 def _get_scores(
@@ -111,7 +111,8 @@ def main(
     dataset: str = None,
     metric: str = None,
     per_prompt: bool = True,
-    include_openrouter: bool = True,
+    include_openrouter: bool = False,
+    with_system_prompt: bool = False,
 ):
     """Print evaluation results as a table.
 
@@ -123,6 +124,7 @@ def main(
               Defaults based on task type.
         per_prompt: If True, show per-prompt scores instead of averages.
         include_openrouter: If True, also include OpenRouter API model results.
+        with_system_prompt: If True, read results from with_system_prompt/ subfolders.
     """
     if task and dataset:
         # Both provided: validate dataset belongs to task
@@ -141,6 +143,7 @@ def main(
                 metric=metric,
                 per_prompt=per_prompt,
                 include_openrouter=include_openrouter,
+                with_system_prompt=with_system_prompt,
             )
         return
     elif task:
@@ -160,8 +163,14 @@ def main(
     if metric is None:
         metric = _detect_metric(task)
 
+    # When with_system_prompt is True, show both normal and +sys results together
+    sys_prompt_root = Path("evaluation_results/with_system_prompt") if with_system_prompt else None
+    sys_prompt_label = " (+ system prompt comparison)" if with_system_prompt else ""
+
     model_variants = _collect_model_variants()
-    openrouter_models = _collect_openrouter_models() if include_openrouter else []
+    openrouter_models = (
+        _collect_openrouter_models() if include_openrouter else []
+    )
 
     # Determine the openrouter metric (API models use exact_match for classification)
     openrouter_metric = metric
@@ -175,11 +184,15 @@ def main(
             _print_per_prompt_table(
                 task, ds, prompt_ids, metric, model_variants,
                 openrouter_models, openrouter_metric,
+                RESULTS_ROOT, OPENROUTER_RESULTS_ROOT, sys_prompt_label,
+                sys_prompt_root,
             )
         else:
             _print_summary_table(
                 task, ds, prompt_ids, metric, model_variants,
                 openrouter_models, openrouter_metric,
+                RESULTS_ROOT, OPENROUTER_RESULTS_ROOT, sys_prompt_label,
+                sys_prompt_root,
             )
 
         print()
@@ -194,6 +207,31 @@ def _format_score(value: float | None, metric: str) -> str:
     return f"{value:.2f}"
 
 
+def _summary_row(model_key, variant, scores, metric, num_prompts):
+    """Build one summary row [model, variant, avg, min, max, prompts]."""
+    valid = [s for s in scores if s is not None]
+    if not valid:
+        return [model_key, variant, "-", "-", "-", f"0/{num_prompts}"]
+    avg = sum(valid) / len(valid)
+    return [
+        model_key, variant,
+        _format_score(avg, metric),
+        _format_score(min(valid), metric),
+        _format_score(max(valid), metric),
+        f"{len(valid)}/{num_prompts}",
+    ]
+
+
+def _per_prompt_row(model_key, variant, scores, metric):
+    """Build one per-prompt row [model, variant, *scores, avg]."""
+    valid = [s for s in scores if s is not None]
+    avg = sum(valid) / len(valid) if valid else None
+    row = [model_key, variant]
+    row += [_format_score(s, metric) for s in scores]
+    row.append(_format_score(avg, metric))
+    return row
+
+
 def _print_summary_table(
     task: str,
     dataset: str,
@@ -202,47 +240,38 @@ def _print_summary_table(
     model_variants: list[tuple[str, str, str]],
     openrouter_models: list[str],
     openrouter_metric: str,
+    results_root: Path = RESULTS_ROOT,
+    openrouter_root: Path = OPENROUTER_RESULTS_ROOT,
+    label: str = "",
+    sys_prompt_root: Path | None = None,
 ):
     """Print a table with one row per model, showing avg/min/max across prompts."""
-    print(f"=== {task} / {dataset} (metric: {metric}) ===")
+    print(f"=== {task} / {dataset} (metric: {metric}){label} ===")
 
     headers = ["Model", "Variant", "Avg", "Min", "Max", "Prompts"]
     rows = []
+    n = len(prompt_ids)
+    sep = ["─" * 6] * len(headers)
 
+    prev_model = None
     for model_key, variant, results_dir in model_variants:
-        scores = _get_scores(results_dir, task, dataset, prompt_ids, metric)
-        valid = [s for s in scores if s is not None]
-        if not valid:
-            rows.append([model_key, variant, "-", "-", "-", "0/" + str(len(prompt_ids))])
-            continue
-        avg = sum(valid) / len(valid)
-        rows.append([
-            model_key,
-            variant,
-            _format_score(avg, metric),
-            _format_score(min(valid), metric),
-            _format_score(max(valid), metric),
-            f"{len(valid)}/{len(prompt_ids)}",
-        ])
+        if prev_model is not None and model_key != prev_model:
+            rows.append(sep)
+        prev_model = model_key
+        scores = _get_scores(results_dir, task, dataset, prompt_ids, metric, root=results_root)
+        rows.append(_summary_row(model_key, variant, scores, metric, n))
+        if sys_prompt_root:
+            sys_scores = _get_scores(results_dir, task, dataset, prompt_ids, metric, root=sys_prompt_root)
+            rows.append(_summary_row(model_key, variant + "+sys", sys_scores, metric, n))
 
+    if openrouter_models and rows:
+        rows.append(sep)
     for api_model in openrouter_models:
         scores = _get_scores(
             api_model, task, dataset, prompt_ids, openrouter_metric,
-            root=OPENROUTER_RESULTS_ROOT,
+            root=openrouter_root,
         )
-        valid = [s for s in scores if s is not None]
-        if not valid:
-            rows.append([api_model, "api", "-", "-", "-", "0/" + str(len(prompt_ids))])
-            continue
-        avg = sum(valid) / len(valid)
-        rows.append([
-            api_model,
-            "api",
-            _format_score(avg, openrouter_metric),
-            _format_score(min(valid), openrouter_metric),
-            _format_score(max(valid), openrouter_metric),
-            f"{len(valid)}/{len(prompt_ids)}",
-        ])
+        rows.append(_summary_row(api_model, "api", scores, openrouter_metric, n))
 
     print(tabulate(rows, headers=headers, tablefmt="simple"))
 
@@ -255,33 +284,37 @@ def _print_per_prompt_table(
     model_variants: list[tuple[str, str, str]],
     openrouter_models: list[str],
     openrouter_metric: str,
+    results_root: Path = RESULTS_ROOT,
+    openrouter_root: Path = OPENROUTER_RESULTS_ROOT,
+    label: str = "",
+    sys_prompt_root: Path | None = None,
 ):
     """Print a table with one row per model, one column per prompt."""
-    print(f"=== {task} / {dataset} (metric: {metric}) ===")
+    print(f"=== {task} / {dataset} (metric: {metric}){label} ===")
 
     headers = ["Model", "Variant"] + [str(pid) for pid in prompt_ids] + ["Avg"]
     rows = []
+    sep = ["─" * 6] * len(headers)
 
+    prev_model = None
     for model_key, variant, results_dir in model_variants:
-        scores = _get_scores(results_dir, task, dataset, prompt_ids, metric)
-        valid = [s for s in scores if s is not None]
-        avg = sum(valid) / len(valid) if valid else None
-        row = [model_key, variant]
-        row += [_format_score(s, metric) for s in scores]
-        row.append(_format_score(avg, metric))
-        rows.append(row)
+        if prev_model is not None and model_key != prev_model:
+            rows.append(sep)
+        prev_model = model_key
+        scores = _get_scores(results_dir, task, dataset, prompt_ids, metric, root=results_root)
+        rows.append(_per_prompt_row(model_key, variant, scores, metric))
+        if sys_prompt_root:
+            sys_scores = _get_scores(results_dir, task, dataset, prompt_ids, metric, root=sys_prompt_root)
+            rows.append(_per_prompt_row(model_key, variant + "+sys", sys_scores, metric))
 
+    if openrouter_models and rows:
+        rows.append(sep)
     for api_model in openrouter_models:
         scores = _get_scores(
             api_model, task, dataset, prompt_ids, openrouter_metric,
-            root=OPENROUTER_RESULTS_ROOT,
+            root=openrouter_root,
         )
-        valid = [s for s in scores if s is not None]
-        avg = sum(valid) / len(valid) if valid else None
-        row = [api_model, "api"]
-        row += [_format_score(s, openrouter_metric) for s in scores]
-        row.append(_format_score(avg, openrouter_metric))
-        rows.append(row)
+        rows.append(_per_prompt_row(api_model, "api", scores, openrouter_metric))
 
     print(tabulate(rows, headers=headers, tablefmt="simple"))
 

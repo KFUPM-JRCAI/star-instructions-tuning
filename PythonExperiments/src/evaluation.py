@@ -24,7 +24,42 @@ from .preprocessing import DATASET_FUNCTIONS, get_yaml_template
 from .promptlab import fetch_prompts, filter_prompts, get_dataset_prompts
 
 
+# ── Constants ─────────────────────────────────────────────────────────────────
+
+SYSTEM_PROMPT_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "global_system_prompt.txt"
+)
+
+# Task -> input text field name in the HF dataset
+TASK_TEXT_FIELD = {
+    "dialect_identification": "text",
+    "NLI": "text",
+    "NLU": "text",
+    "sarcasm_detection": "text",
+    "machine_translation": "en",
+    "summarization": "text",
+}
+
+
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
+
+def _load_system_prompt() -> str:
+    """Load the global system prompt text."""
+    with open(SYSTEM_PROMPT_PATH) as f:
+        return f.read().strip()
+
+
+def _prepend_system_prompt(hf_dataset, text_field: str, system_prompt_text: str):
+    """Prepend the system prompt to the input text field of every sample."""
+    prefix = f"[[System Prompt]]\n{system_prompt_text}\n\n---\n\n"
+
+    def _prepend(example):
+        example[text_field] = prefix + example[text_field]
+        return example
+
+    hf_dataset["test"] = hf_dataset["test"].map(_prepend)
+    return hf_dataset
 
 
 def _resolve_adapter_path(task_name: str, experiment, model_config) -> str:
@@ -122,20 +157,30 @@ def _load_and_merge_prompts(task_name, dataset_name, experiment, task_fns, promp
     return prompts, promptlab_name
 
 
-def _save_parquet(hf_dataset, promptlab_name: str, prompt_id: int) -> None:
+def _save_parquet(
+    hf_dataset, promptlab_name: str, prompt_id: int, artifacts_prefix: str = "",
+) -> None:
     """Write the prompt-specific HF dataset to Parquet."""
-    parquet_dir = f"experimental_hf_datasets/{promptlab_name}/prompt_{prompt_id}"
+    parquet_dir = f"experimental_hf_datasets/{artifacts_prefix}{promptlab_name}/prompt_{prompt_id}"
     os.makedirs(parquet_dir, exist_ok=True)
     hf_dataset["test"].to_parquet(f"{parquet_dir}/data.parquet")
 
 
-def _write_yaml_config(task_name: str, promptlab_name: str, prompt_id: int) -> str:
+def _write_yaml_config(
+    task_name: str, promptlab_name: str, prompt_id: int, artifacts_prefix: str = "",
+) -> str:
     """Write the lm-eval YAML task config and return the eval task name."""
     yaml_text = get_yaml_template(task_name).format(
         dataset_name=promptlab_name,
         prompt_id=prompt_id,
     )
-    yaml_dir = f"eval_harness_extra_tasks/{promptlab_name}"
+    # Point dataset_path to the correct parquet location
+    if artifacts_prefix:
+        yaml_text = yaml_text.replace(
+            "experimental_hf_datasets/",
+            f"experimental_hf_datasets/{artifacts_prefix}",
+        )
+    yaml_dir = f"eval_harness_extra_tasks/{artifacts_prefix}{promptlab_name}"
     os.makedirs(yaml_dir, exist_ok=True)
     with open(f"{yaml_dir}/prompt_{prompt_id}.yaml", "w") as f:
         f.write(yaml_text)
@@ -143,13 +188,15 @@ def _write_yaml_config(task_name: str, promptlab_name: str, prompt_id: int) -> s
     return f"{promptlab_name}_prompt_{prompt_id}"
 
 
-def _run_lm_eval(lm_obj, eval_task_name: str, promptlab_name: str) -> dict:
+def _run_lm_eval(
+    lm_obj, eval_task_name: str, promptlab_name: str, artifacts_prefix: str = "",
+) -> dict:
     """Run lm-eval simple_evaluate for a single task."""
     from lm_eval.tasks import TaskManager
     from lm_eval.evaluator import simple_evaluate
 
     task_manager = TaskManager(
-        include_path=f"eval_harness_extra_tasks/{promptlab_name}"
+        include_path=f"eval_harness_extra_tasks/{artifacts_prefix}{promptlab_name}"
     )
     return simple_evaluate(
         model=lm_obj,
@@ -197,6 +244,7 @@ def run_evaluation(
     model_key: str,
     variant: str,
     force_re_evaluate: bool = False,
+    add_system_prompt: bool = False,
 ) -> None:
     """Run the full evaluation pipeline for a task + dataset + model + variant."""
     from lm_eval.utils import make_table
@@ -215,6 +263,10 @@ def run_evaluation(
         else None
     )
 
+    # ── System prompt setup ──
+    artifacts_prefix = "with_system_prompt/" if add_system_prompt else ""
+    system_prompt_text = _load_system_prompt() if add_system_prompt else None
+
     # ── Log run info ──
     promptlab_name = experiment.get_promptlab_name(dataset_name)
     print(f"[Eval] Task: {task_name}")
@@ -222,9 +274,11 @@ def run_evaluation(
     print(f"[Eval] Model: {results_model_name} ({model_path})")
     if adapter_path:
         print(f"[Eval] Adapter: {adapter_path}")
+    if add_system_prompt:
+        print("[Eval] System prompt: ENABLED")
 
     # ── Check which prompts still need evaluation ──
-    results_dir = f"evaluation_results/{results_model_name}/{task_name}/{promptlab_name}"
+    results_dir = f"evaluation_results/{artifacts_prefix}{results_model_name}/{task_name}/{promptlab_name}"
     all_results = {}
     pending_prompt_ids = []
 
@@ -272,11 +326,16 @@ def run_evaluation(
 
         # Prepare artifacts
         hf_dataset = task_fns.create_hf_dataset(prompt)
-        _save_parquet(hf_dataset, promptlab_name, prompt_id)
-        eval_task_name = _write_yaml_config(task_name, promptlab_name, prompt_id)
+        if system_prompt_text:
+            text_field = TASK_TEXT_FIELD[task_name]
+            hf_dataset = _prepend_system_prompt(hf_dataset, text_field, system_prompt_text)
+        _save_parquet(hf_dataset, promptlab_name, prompt_id, artifacts_prefix)
+        eval_task_name = _write_yaml_config(
+            task_name, promptlab_name, prompt_id, artifacts_prefix,
+        )
 
         # Run evaluation
-        result = _run_lm_eval(lm_obj, eval_task_name, promptlab_name)
+        result = _run_lm_eval(lm_obj, eval_task_name, promptlab_name, artifacts_prefix)
         print(make_table(result))
 
         # Save results

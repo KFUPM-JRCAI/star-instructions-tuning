@@ -1,14 +1,22 @@
 #!/bin/bash
 # Run all evaluations sequentially.
-# Usage: bash slurm/scripts/run_evals.sh [--dry-run]
+# Usage: bash slurm/scripts/run_evals.sh [--dry-run] [--add-system-prompt]
 
 set -euo pipefail
 
 PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning"
 DRY_RUN=false
-if [[ "${1:-}" == "--dry-run" ]]; then
-    DRY_RUN=true
-    echo "--- DRY RUN mode (nothing will be executed) ---"
+ADD_SYSTEM_PROMPT=false
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run) DRY_RUN=true; echo "--- DRY RUN mode (nothing will be executed) ---" ;;
+        --add-system-prompt) ADD_SYSTEM_PROMPT=true; echo "--- System prompt ENABLED ---" ;;
+    esac
+done
+
+SYSTEM_PROMPT_FLAG=""
+if [[ "$ADD_SYSTEM_PROMPT" == true ]]; then
+    SYSTEM_PROMPT_FLAG="--add_system_prompt"
 fi
 
 cd "$PROJECT_DIR"
@@ -44,7 +52,7 @@ for task_name in "${!TASK_PRIMARY_DATASET[@]}"; do
 
         for variant in "${VARIANTS[@]}"; do
             if [[ "$variant" == "tuned" ]]; then
-                adapter_dir="$PROJECT_DIR/Notebooks/Experiments/$task_name/$primary/tuned_models/$model_name"
+                adapter_dir="$PROJECT_DIR/tuned_models/$task_name/$primary/$model_folder"
                 if [[ ! -f "$adapter_dir/adapter_config.json" ]]; then
                     echo "SKIP (adapter not found): $task_name/$model_folder/tuned"
                     ((skipped_no_adapter++)) || true
@@ -95,7 +103,7 @@ for cmd in "${eval_commands[@]}"; do
     uv run python PythonExperiments/run_eval.py \
         --task "$task_name" \
         --model "$model_folder" \
-        --variant "$variant" || { echo "WARN: evaluation exited non-zero"; }
+        --variant "$variant" $SYSTEM_PROMPT_FLAG || { echo "WARN: evaluation exited non-zero"; }
 
     echo "Finished at: $(date)"
     echo ""

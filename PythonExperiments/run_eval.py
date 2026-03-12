@@ -26,6 +26,7 @@ def main(
     variant: str = "all",
     gpus: str = None,
     force_re_evaluate: bool = False,
+    add_system_prompt: bool = False,
 ):
     """Evaluate a model on a task dataset using lm-evaluation-harness.
 
@@ -36,6 +37,7 @@ def main(
         variant: Model variant (base, chat, tuned) or 'all' (default: all).
         gpus: Comma-separated GPU IDs (default: all available).
         force_re_evaluate: Re-evaluate even if results already exist.
+        add_system_prompt: Prepend global system prompt to each sample's input text.
     """
     if task is None:
         fire.Fire(main, command=["--help"])
@@ -96,6 +98,7 @@ def main(
                         model_key=model_key,
                         variant=variant_name,
                         force_re_evaluate=force_re_evaluate,
+                        add_system_prompt=add_system_prompt,
                     )
 
 
