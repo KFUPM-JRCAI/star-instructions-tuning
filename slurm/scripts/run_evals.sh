@@ -20,7 +20,7 @@ MODEL_NAME_MAP["AceGPT-v2-8B"]="AceGPT-v2-8B"
 MODEL_NAME_MAP["Llama-3.1-8B"]="Meta-Llama-3.1-8B"
 MODEL_NAME_MAP["Qwen3-8B"]="Qwen3-8B"
 
-# Tasks, primary datasets, and secondary datasets
+# Task -> primary dataset (needed for adapter path check)
 declare -A TASK_PRIMARY_DATASET
 TASK_PRIMARY_DATASET["dialect_identification"]="AraBench_dev"
 TASK_PRIMARY_DATASET["machine_translation"]="opus-100"
@@ -29,28 +29,15 @@ TASK_PRIMARY_DATASET["NLU"]="ArabicMMLU"
 TASK_PRIMARY_DATASET["sarcasm_detection"]="ArSarcasm_v2"
 TASK_PRIMARY_DATASET["summarization"]="xlsum"
 
-declare -A TASK_SECONDARY_DATASETS
-TASK_SECONDARY_DATASETS["dialect_identification"]="Arabic_Dialects_Dataset"
-TASK_SECONDARY_DATASETS["machine_translation"]="tatoeba_mt"
-TASK_SECONDARY_DATASETS["NLI"]="ArabicTE"
-TASK_SECONDARY_DATASETS["NLU"]="belebele"
-TASK_SECONDARY_DATASETS["sarcasm_detection"]="iSarcasmEval_task"
-TASK_SECONDARY_DATASETS["summarization"]="AraSum"
-
 MODEL_FOLDERS=("AceGPT-v1-7B" "AceGPT-v2-8B" "Llama-3.1-8B" "Qwen3-8B")
 VARIANTS=("base" "chat" "tuned")
 
-# Collect all eval commands
+# Collect all eval commands, skipping tuned variants without adapters
 eval_commands=()
 skipped_no_adapter=0
 
 for task_name in "${!TASK_PRIMARY_DATASET[@]}"; do
     primary="${TASK_PRIMARY_DATASET[$task_name]}"
-    secondary="${TASK_SECONDARY_DATASETS[$task_name]:-}"
-    all_datasets=("$primary")
-    if [[ -n "$secondary" ]]; then
-        all_datasets+=("$secondary")
-    fi
 
     for model_folder in "${MODEL_FOLDERS[@]}"; do
         model_name="${MODEL_NAME_MAP[$model_folder]}"
@@ -65,9 +52,7 @@ for task_name in "${!TASK_PRIMARY_DATASET[@]}"; do
                 fi
             fi
 
-            for dataset_name in "${all_datasets[@]}"; do
-                eval_commands+=("$task_name|$dataset_name|$model_folder|$variant")
-            done
+            eval_commands+=("$task_name|$model_folder|$variant")
         done
     done
 done
@@ -84,8 +69,8 @@ fi
 
 # Print all evaluations
 for cmd in "${eval_commands[@]}"; do
-    IFS='|' read -r t d m v <<< "$cmd"
-    echo "  $t / $d / $m / $v"
+    IFS='|' read -r t m v <<< "$cmd"
+    echo "  $t / $m / $v"
 done
 echo ""
 
@@ -100,18 +85,17 @@ echo ""
 
 counter=0
 for cmd in "${eval_commands[@]}"; do
-    IFS='|' read -r task_name dataset_name model_folder variant <<< "$cmd"
+    IFS='|' read -r task_name model_folder variant <<< "$cmd"
     counter=$((counter + 1))
     echo "========================================"
-    echo "[$counter/$total] $task_name / $dataset_name / $model_folder / $variant"
+    echo "[$counter/$total] $task_name / $model_folder / $variant (all datasets)"
     echo "Started at: $(date)"
     echo "========================================"
 
     uv run python PythonExperiments/run_eval.py \
         --task "$task_name" \
-        --dataset "$dataset_name" \
         --model "$model_folder" \
-        --variant "$variant" || { echo "WARN: evaluation exited non-zero (may be expected from sys.exit)"; }
+        --variant "$variant" || { echo "WARN: evaluation exited non-zero"; }
 
     echo "Finished at: $(date)"
     echo ""
