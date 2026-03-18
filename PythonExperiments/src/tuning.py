@@ -87,8 +87,10 @@ def run_tuning(task_name: str, model_key: str) -> None:
     print(f"[Tuning] Train: {len(train_samples)} | Eval: {len(eval_samples)}")
 
     # ── Save samples to JSON ──
+    # Saved at the task level (shared across models) and outside the model
+    # output dir so that the trainer's shutil.rmtree doesn't wipe them.
     tuned_model_dir = f"tuned_models/{task_name}/{dataset_name}/{model_key}"
-    samples_dir = f"{tuned_model_dir}/samples_used_for_tuning"
+    samples_dir = f"tuned_models/{task_name}/samples_used_for_tuning"
     os.makedirs(samples_dir, exist_ok=True)
 
     with open(f"{samples_dir}/train.json", "w") as f:

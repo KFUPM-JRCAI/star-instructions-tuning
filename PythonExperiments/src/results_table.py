@@ -51,7 +51,7 @@ def _detect_metric(task_name: str) -> str:
     """Return the default metric key for a task."""
     if task_name in GENERATION_TASKS:
         return "calculate_bleu"
-    return "acc"
+    return "acc_norm"
 
 
 def _read_result(result_path: Path, metric: str) -> float | None:
@@ -179,17 +179,19 @@ def main(
 
     for ds in datasets_to_show:
         prompt_ids = config.prompt_ids[ds]
+        # Results are stored under the promptlab name (may differ from dataset key)
+        results_dataset_name = config.get_promptlab_name(ds)
 
         if per_prompt:
             _print_per_prompt_table(
-                task, ds, prompt_ids, metric, model_variants,
+                task, results_dataset_name, prompt_ids, metric, model_variants,
                 openrouter_models, openrouter_metric,
                 RESULTS_ROOT, OPENROUTER_RESULTS_ROOT, sys_prompt_label,
                 sys_prompt_root,
             )
         else:
             _print_summary_table(
-                task, ds, prompt_ids, metric, model_variants,
+                task, results_dataset_name, prompt_ids, metric, model_variants,
                 openrouter_models, openrouter_metric,
                 RESULTS_ROOT, OPENROUTER_RESULTS_ROOT, sys_prompt_label,
                 sys_prompt_root,

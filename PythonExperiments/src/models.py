@@ -22,13 +22,18 @@ def _ensure_corekit_on_path() -> None:
 
 
 def get_llm_imports():
-    """Lazily import Llama3Initializer, Llama31Initializer, LoRAConfigRepository.
+    """Lazily import initializers and LoRAConfigRepository.
 
     Call this only when you actually need these classes (i.e. during tuning).
     """
     _ensure_corekit_on_path()
-    from llm import Llama3Initializer, Llama31Initializer, LoRAConfigRepository
-    return Llama3Initializer, Llama31Initializer, LoRAConfigRepository
+    from llm import (
+        Llama3Initializer,
+        Llama31Initializer,
+        Qwen3Initializer,
+        LoRAConfigRepository,
+    )
+    return Llama3Initializer, Llama31Initializer, Qwen3Initializer, LoRAConfigRepository
 
 
 @dataclass
@@ -41,19 +46,22 @@ class ModelConfig:
     lora_name: str           # e.g. "llama_3"
     # Names used in evaluation_results/ directories per variant
     results_names: dict = field(default_factory=dict)
+    # If True, wrap eval inputs with the model's chat template for the chat variant.
+    chat_apply_chat_template: bool = False
 
     def get_initializer(self):
         """Return the initializer class (imports llm lazily)."""
-        Llama3Initializer, Llama31Initializer, _ = get_llm_imports()
+        Llama3Initializer, Llama31Initializer, Qwen3Initializer, _ = get_llm_imports()
         mapping = {
             "Llama3Initializer": Llama3Initializer,
             "Llama31Initializer": Llama31Initializer,
+            "Qwen3Initializer": Qwen3Initializer,
         }
         return mapping[self.initializer_name]
 
     def get_lora_config(self):
         """Return the LoRA config factory method (imports llm lazily)."""
-        _, _, LoRAConfigRepository = get_llm_imports()
+        _, _, _, LoRAConfigRepository = get_llm_imports()
         mapping = {
             "llama_3": LoRAConfigRepository.llama_3,
         }
@@ -101,13 +109,14 @@ MODELS: dict[str, ModelConfig] = {
         name="Qwen3-8B",
         path="/raid_storage/shared_models/Qwen3-8B-Base",
         chat_path="/raid_storage/shared_models/Qwen3-8B",
-        initializer_name="Llama3Initializer",
+        initializer_name="Qwen3Initializer",
         lora_name="llama_3",
         results_names={
             "base": "Qwen3-8B",
             "chat": "Qwen3-8B-chat",
             "tuned": "Qwen3-8B-tuned",
         },
+        chat_apply_chat_template=True,
     ),
 }
 

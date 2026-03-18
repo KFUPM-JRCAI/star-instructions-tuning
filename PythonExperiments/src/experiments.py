@@ -67,11 +67,15 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
             "opus-100": [14684, 14688, 14680, 14682, 14640],
             "tatoeba_mt": [14866, 14867, 14868, 14889, 14890],
         },
+        eval_batch_sizes={
+            "opus-100": 32,
+            "tatoeba_mt": 32,
+        },
         training_params={
             "learning_rate": 2.5e-4,
             "epochs_count": 10,
-            "train_batch_size": 1,
-            "eval_batch_size": 1,
+            "train_batch_size": 4,
+            "eval_batch_size": 4,
             "early_stopping_patience": 10,
             "eval_steps": 500,
         },
@@ -148,13 +152,18 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
             "xlsum": [14871, 14803, 14856, 14858, 14668],
             "AraSum": [14891, 14857, 14736, 14735, 14628],
         },
+        eval_batch_sizes={
+            "xlsum": 16,
+            "AraSum": 16,
+        },
         training_params={
             "learning_rate": 2.5e-4,
             "epochs_count": 10,
             "train_batch_size": 1,
             "eval_batch_size": 1,
+            "gradient_accumulation_steps": 4,
             "early_stopping_patience": 20,
-            "eval_steps": 1000,
+            "eval_steps": 500,
         },
     ),
 }

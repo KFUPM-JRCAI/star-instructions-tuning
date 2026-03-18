@@ -81,7 +81,7 @@ def _init_hflm(model_path: str, adapter_path: str | None, batch_size: int):
     model_max_len = getattr(config, "max_position_embeddings", None) or MAX_MODEL_LEN_CAP
     max_length = min(model_max_len, MAX_MODEL_LEN_CAP)
 
-    print(f"[Eval] Using HFLM backend (multiple_choice task, max_length={max_length}, batch_size={batch_size})")
+    print(f"[Eval] Using HFLM backend (max_length={max_length}, batch_size={batch_size})")
     kwargs = dict(
         pretrained=model_path,
         trust_remote_code=True,
@@ -90,6 +90,7 @@ def _init_hflm(model_path: str, adapter_path: str | None, batch_size: int):
         tokenizer=model_path,
         batch_size=batch_size,
         max_length=max_length,
+        enable_thinking=False,
     )
     if adapter_path:
         kwargs["peft"] = adapter_path
@@ -98,12 +99,18 @@ def _init_hflm(model_path: str, adapter_path: str | None, batch_size: int):
 
 
 def _init_vllm(model_path: str, adapter_path: str | None):
-    """Initialise VLLM for generate_until tasks."""
+    """Initialise VLLM for generate_until tasks.
+
+    LoRA adapters are loaded via lm-eval's VLLM wrapper which uses
+    vllm.lora.request.LoRARequest under the hood. The wrapper automatically
+    sets enable_lora=True when lora_local_path is provided.
+    See: https://docs.vllm.ai/en/stable/features/lora/
+    """
     import torch
     from transformers import AutoConfig
     from lm_eval.models.vllm_causallms import VLLM
 
-    print("[Eval] Using VLLM backend (generate_until task)")
+    print("[Eval] Using VLLM backend")
     tp_size = torch.cuda.device_count()
 
     config = AutoConfig.from_pretrained(model_path)
@@ -121,6 +128,7 @@ def _init_vllm(model_path: str, adapter_path: str | None):
     )
     if adapter_path:
         kwargs["lora_local_path"] = adapter_path
+        kwargs["max_lora_rank"] = 64
 
     return VLLM(**kwargs)
 
@@ -189,7 +197,11 @@ def _write_yaml_config(
 
 
 def _run_lm_eval(
-    lm_obj, eval_task_name: str, promptlab_name: str, artifacts_prefix: str = "",
+    lm_obj,
+    eval_task_name: str,
+    promptlab_name: str,
+    artifacts_prefix: str = "",
+    apply_chat_template: bool = False,
 ) -> dict:
     """Run lm-eval simple_evaluate for a single task."""
     from lm_eval.tasks import TaskManager
@@ -203,6 +215,7 @@ def _run_lm_eval(
         tasks=[eval_task_name],
         num_fewshot=0,
         task_manager=task_manager,
+        apply_chat_template=apply_chat_template,
     )
 
 
@@ -274,6 +287,9 @@ def run_evaluation(
     print(f"[Eval] Model: {results_model_name} ({model_path})")
     if adapter_path:
         print(f"[Eval] Adapter: {adapter_path}")
+    use_chat_template = variant == "chat" and model_config.chat_apply_chat_template
+    if use_chat_template:
+        print("[Eval] Apply Chat template: ENABLED")
     if add_system_prompt:
         print("[Eval] System prompt: ENABLED")
 
@@ -297,7 +313,7 @@ def run_evaluation(
 
     if not pending_prompt_ids:
         print(f"[Eval] All {len(prompt_ids)} prompts already evaluated. Skipping.")
-        sys.exit(0)
+        return
 
     print(f"[Eval] {len(pending_prompt_ids)}/{len(prompt_ids)} prompts need evaluation")
 
@@ -307,11 +323,12 @@ def run_evaluation(
     )
 
     # ── Initialize model ──
+    batch_size = experiment.get_eval_batch_size(dataset_name)
     if task_name in MULTIPLE_CHOICE_TASKS:
-        batch_size = experiment.get_eval_batch_size(dataset_name)
         lm_obj = _init_hflm(model_path, adapter_path, batch_size)
     else:
-        lm_obj = _init_vllm(model_path, adapter_path)
+        # lm_obj = _init_vllm(model_path, adapter_path)
+        lm_obj = _init_hflm(model_path, adapter_path, batch_size)
 
     # ── Evaluate each prompt ──
     print(f"[Eval] Evaluating {len(prompts)} prompts sequentially")
@@ -335,7 +352,10 @@ def run_evaluation(
         )
 
         # Run evaluation
-        result = _run_lm_eval(lm_obj, eval_task_name, promptlab_name, artifacts_prefix)
+        result = _run_lm_eval(
+            lm_obj, eval_task_name, promptlab_name, artifacts_prefix,
+            apply_chat_template=use_chat_template,
+        )
         print(make_table(result))
 
         # Save results
@@ -347,4 +367,3 @@ def run_evaluation(
         f"\n[Eval] Done. Evaluated {len(prompts)} prompts "
         f"for {results_model_name}/{task_name}/{promptlab_name}"
     )
-    sys.exit(0)
