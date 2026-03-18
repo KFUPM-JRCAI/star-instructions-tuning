@@ -171,3 +171,4 @@ slurm/logs
 tmp
 .claude
 openrouter_eval/cache
+evaluation_results

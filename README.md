@@ -23,3 +23,20 @@ This project aims to tune LLMs on Arabic datasets.
 Dots, in this tree strcuture, means that other folders can be added on top of this strcture mainly for experimentation. For instance, some tasks contains `Notebooks` folder for further experimentation.
 
 - The strucutre of each evaluation notebook is that we first get the prompts related to the dataset from Tajeeh. After that, we merge the prompts with the dataset instances. Then, we create a yaml task description suitable to be read by eval-harness along with a huggingface dataset for each prompt. Finally, we call eval-harness to perform the evaluation and report the results. Results and evaluation logs are reported and saved in the folder `evaluation_results`.
+
+## Note on Git History Rewrite
+
+The `evaluation_results/` directory was removed from Git LFS tracking and the repository history was rewritten to reduce LFS storage usage. If you had cloned this repo before this change, you will need to re-clone it:
+
+```bash
+git clone https://github.com/KFUPM-JRCAI/instructions-tuning.git
+```
+
+Alternatively, if you want to keep your local copy, you can run:
+
+```bash
+git fetch origin
+git reset --hard origin/main
+```
+
+Note: any local uncommitted changes or branches based on the old history will need to be manually reapplied after re-cloning.
