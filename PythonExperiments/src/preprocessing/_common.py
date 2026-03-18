@@ -48,12 +48,6 @@ metric_list:
     higher_is_better: true
 generation_kwargs:
     max_new_tokens: 512
-    until:
-    - </s>
-    - <|eot_id|>
-    - <|end_of_text|>
-    - <|endoftext|>
-    - <|im_end|>
 metadata:
   version: 1.0"""
 
@@ -70,12 +64,6 @@ metric_list:
     higher_is_better: true
 generation_kwargs:
     max_new_tokens: 512
-    until:
-    - </s>
-    - <|eot_id|>
-    - <|end_of_text|>
-    - <|endoftext|>
-    - <|im_end|>
 metadata:
   version: 1.0"""
 

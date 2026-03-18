@@ -1,4 +1,5 @@
 from sacrebleu import BLEU
+import re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,11 +8,14 @@ bleu = BLEU()
 
 _empty_prediction_count = 0
 
+_THINK_REGEX = re.compile(r"<think>.*?</think>\s*", flags=re.DOTALL)
+
 
 def calculate_bleu(predictions, references):
     global _empty_prediction_count
     # this function preprocess predictions before bleu calculation
     prediction = predictions[0].strip()
+    prediction = _THINK_REGEX.sub("", prediction).strip()
     if prediction:
         prediction = prediction.splitlines()[0].strip()
     else:
