@@ -15,14 +15,19 @@ Usage (from project root):
 
     # Include OpenRouter API model results
     uv run python -m PythonExperiments.src.results_table --task NLU --include-openrouter
+
+    # Show mean ± std from multiple runs (reads from evaluation_results_multiple_runs/)
+    uv run python -m PythonExperiments.src.results_table --task NLI --runs 10
 """
 
 import json
 import os
+import statistics
 from pathlib import Path
 
 import fire
 from tabulate import tabulate
+from tqdm.auto import tqdm
 
 from PythonExperiments.src.experiments import EXPERIMENTS
 from PythonExperiments.src.models import MODELS
@@ -106,6 +111,41 @@ def _get_scores(
     return scores
 
 
+MULTI_RUN_RESULTS_ROOT = Path("evaluation_results_multiple_runs")
+
+
+def _get_multi_run_scores(
+    results_dir_name: str,
+    task_name: str,
+    dataset: str,
+    prompt_ids: list[int],
+    metric: str,
+    runs: int,
+    root: Path = MULTI_RUN_RESULTS_ROOT,
+) -> list[tuple[float, float] | None]:
+    """Get mean ± std scores across multiple runs for each prompt ID.
+
+    Returns a list of (mean, std) tuples. If a prompt has fewer than `runs`
+    completed results, returns None for that prompt.
+    """
+    results = []
+    for pid in prompt_ids:
+        prompt_dir = root / results_dir_name / task_name / dataset / f"prompt_{pid}"
+        run_scores = []
+        for run_num in range(1, runs + 1):
+            path = prompt_dir / f"run_{run_num}.json"
+            score = _read_result(path, metric)
+            if score is not None:
+                run_scores.append(score)
+        if len(run_scores) == runs:
+            mean = statistics.mean(run_scores)
+            std = statistics.stdev(run_scores) if runs > 1 else 0.0
+            results.append((mean, std))
+        else:
+            results.append(None)
+    return results
+
+
 def main(
     task: str = None,
     dataset: str = None,
@@ -113,6 +153,7 @@ def main(
     per_prompt: bool = True,
     include_openrouter: bool = False,
     with_system_prompt: bool = False,
+    runs: int = None,
 ):
     """Print evaluation results as a table.
 
@@ -125,6 +166,8 @@ def main(
         per_prompt: If True, show per-prompt scores instead of averages.
         include_openrouter: If True, also include OpenRouter API model results.
         with_system_prompt: If True, read results from with_system_prompt/ subfolders.
+        runs: Number of expected runs. When set, reads from evaluation_results_multiple_runs/
+              and shows mean ± std. Prompts with fewer than this many runs show '-'.
     """
     if task and dataset:
         # Both provided: validate dataset belongs to task
@@ -144,6 +187,7 @@ def main(
                 per_prompt=per_prompt,
                 include_openrouter=include_openrouter,
                 with_system_prompt=with_system_prompt,
+                runs=runs,
             )
         return
     elif task:
@@ -182,7 +226,12 @@ def main(
         # Results are stored under the promptlab name (may differ from dataset key)
         results_dataset_name = config.get_promptlab_name(ds)
 
-        if per_prompt:
+        if runs:
+            _print_multi_run_table(
+                task, results_dataset_name, prompt_ids, metric, model_variants,
+                runs, per_prompt,
+            )
+        elif per_prompt:
             _print_per_prompt_table(
                 task, results_dataset_name, prompt_ids, metric, model_variants,
                 openrouter_models, openrouter_metric,
@@ -256,7 +305,7 @@ def _print_summary_table(
     sep = ["─" * 6] * len(headers)
 
     prev_model = None
-    for model_key, variant, results_dir in model_variants:
+    for model_key, variant, results_dir in tqdm(model_variants, desc="Loading results", leave=False):
         if prev_model is not None and model_key != prev_model:
             rows.append(sep)
         prev_model = model_key
@@ -268,7 +317,7 @@ def _print_summary_table(
 
     if openrouter_models and rows:
         rows.append(sep)
-    for api_model in openrouter_models:
+    for api_model in tqdm(openrouter_models, desc="Loading OpenRouter results", leave=False):
         scores = _get_scores(
             api_model, task, dataset, prompt_ids, openrouter_metric,
             root=openrouter_root,
@@ -299,7 +348,7 @@ def _print_per_prompt_table(
     sep = ["─" * 6] * len(headers)
 
     prev_model = None
-    for model_key, variant, results_dir in model_variants:
+    for model_key, variant, results_dir in tqdm(model_variants, desc="Loading results", leave=False):
         if prev_model is not None and model_key != prev_model:
             rows.append(sep)
         prev_model = model_key
@@ -311,12 +360,90 @@ def _print_per_prompt_table(
 
     if openrouter_models and rows:
         rows.append(sep)
-    for api_model in openrouter_models:
+    for api_model in tqdm(openrouter_models, desc="Loading OpenRouter results", leave=False):
         scores = _get_scores(
             api_model, task, dataset, prompt_ids, openrouter_metric,
             root=openrouter_root,
         )
         rows.append(_per_prompt_row(api_model, "api", scores, openrouter_metric))
+
+    print(tabulate(rows, headers=headers, tablefmt="simple"))
+
+
+def _format_mean_std(value: tuple[float, float] | None, metric: str) -> str:
+    """Format a (mean, std) tuple for display."""
+    if value is None:
+        return "-"
+    mean, std = value
+    if metric in ("acc", "acc_norm", "exact_match"):
+        return f"{mean * 100:.2f}±{std * 100:.2f}"
+    return f"{mean:.2f}±{std:.2f}"
+
+
+def _print_multi_run_table(
+    task: str,
+    dataset: str,
+    prompt_ids: list[int],
+    metric: str,
+    model_variants: list[tuple[str, str, str]],
+    runs: int,
+    per_prompt: bool = True,
+):
+    """Print a table with mean ± std from multiple evaluation runs."""
+    print(f"=== {task} / {dataset} (metric: {metric}, {runs} runs) ===")
+
+    if per_prompt:
+        headers = ["Model", "Variant"] + [str(pid) for pid in prompt_ids] + ["Avg"]
+        rows = []
+        sep = ["─" * 6] * len(headers)
+
+        prev_model = None
+        for model_key, variant, results_dir in tqdm(model_variants, desc="Loading multi-run results", leave=False):
+            if prev_model is not None and model_key != prev_model:
+                rows.append(sep)
+            prev_model = model_key
+            scores = _get_multi_run_scores(
+                results_dir, task, dataset, prompt_ids, metric, runs,
+            )
+            row = [model_key, variant]
+            row += [_format_mean_std(s, metric) for s in scores]
+            # Compute overall avg across prompts that have all runs
+            valid_means = [s[0] for s in scores if s is not None]
+            if valid_means:
+                overall_mean = statistics.mean(valid_means)
+                overall_std = statistics.stdev(valid_means) if len(valid_means) > 1 else 0.0
+                row.append(_format_mean_std((overall_mean, overall_std), metric))
+            else:
+                row.append("-")
+            rows.append(row)
+    else:
+        headers = ["Model", "Variant", "Avg", "Min", "Max", "Prompts"]
+        rows = []
+        sep = ["─" * 6] * len(headers)
+        n = len(prompt_ids)
+
+        prev_model = None
+        for model_key, variant, results_dir in tqdm(model_variants, desc="Loading multi-run results", leave=False):
+            if prev_model is not None and model_key != prev_model:
+                rows.append(sep)
+            prev_model = model_key
+            scores = _get_multi_run_scores(
+                results_dir, task, dataset, prompt_ids, metric, runs,
+            )
+            valid = [s for s in scores if s is not None]
+            if not valid:
+                rows.append([model_key, variant, "-", "-", "-", f"0/{n}"])
+            else:
+                means = [s[0] for s in valid]
+                avg = statistics.mean(means)
+                avg_std = statistics.mean([s[1] for s in valid])
+                rows.append([
+                    model_key, variant,
+                    _format_mean_std((avg, avg_std), metric),
+                    _format_mean_std((min(means), 0), metric).split("±")[0],
+                    _format_mean_std((max(means), 0), metric).split("±")[0],
+                    f"{len(valid)}/{n}",
+                ])
 
     print(tabulate(rows, headers=headers, tablefmt="simple"))
 

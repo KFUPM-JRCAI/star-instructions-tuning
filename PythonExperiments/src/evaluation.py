@@ -258,9 +258,16 @@ def run_evaluation(
     variant: str,
     force_re_evaluate: bool = False,
     add_system_prompt: bool = False,
+    runs: int = 1,
 ) -> None:
-    """Run the full evaluation pipeline for a task + dataset + model + variant."""
+    """Run the full evaluation pipeline for a task + dataset + model + variant.
+
+    When runs > 1, results are saved to evaluation_results_multiple_runs/
+    with each prompt getting its own folder containing run_1.json, run_2.json, etc.
+    """
     from lm_eval.utils import make_table
+
+    multiple_runs = runs > 1
 
     # ── Resolve configs ──
     experiment = EXPERIMENTS[task_name]
@@ -292,30 +299,64 @@ def run_evaluation(
         print("[Eval] Apply Chat template: ENABLED")
     if add_system_prompt:
         print("[Eval] System prompt: ENABLED")
+    if multiple_runs:
+        print(f"[Eval] Multiple runs mode: {runs} runs per prompt")
 
-    # ── Check which prompts still need evaluation ──
-    results_dir = f"evaluation_results/{artifacts_prefix}{results_model_name}/{task_name}/{promptlab_name}"
+    # ── Determine results directory ──
+    if multiple_runs:
+        results_base = f"evaluation_results_multiple_runs/{artifacts_prefix}{results_model_name}/{task_name}/{promptlab_name}"
+    else:
+        results_base = f"evaluation_results/{artifacts_prefix}{results_model_name}/{task_name}/{promptlab_name}"
+
+    # ── Check which prompts (and runs) still need evaluation ──
     all_results = {}
     pending_prompt_ids = []
 
-    if not force_re_evaluate:
+    if multiple_runs:
+        # For multiple runs, check each run per prompt
+        pending_runs = {}  # prompt_id -> list of run numbers still needed
         for prompt_id in prompt_ids:
-            results_file = f"{results_dir}/prompt_{prompt_id}.json"
-            existing = _load_existing_results(results_file)
-            if existing is not None:
-                print(f"[Eval] Already done: prompt {prompt_id}")
-                print(make_table(existing))
-                all_results[f"{promptlab_name}_prompt_{prompt_id}"] = existing
-            else:
+            prompt_dir = f"{results_base}/prompt_{prompt_id}"
+            if force_re_evaluate:
+                pending_runs[prompt_id] = list(range(1, runs + 1))
                 pending_prompt_ids.append(prompt_id)
+            else:
+                missing_runs = []
+                for run_num in range(1, runs + 1):
+                    run_file = f"{prompt_dir}/run_{run_num}.json"
+                    existing = _load_existing_results(run_file)
+                    if existing is not None:
+                        print(f"[Eval] Already done: prompt {prompt_id} run {run_num}")
+                    else:
+                        missing_runs.append(run_num)
+                if missing_runs:
+                    pending_runs[prompt_id] = missing_runs
+                    pending_prompt_ids.append(prompt_id)
     else:
-        pending_prompt_ids = list(prompt_ids)
+        # Single run (original behavior)
+        if not force_re_evaluate:
+            for prompt_id in prompt_ids:
+                results_file = f"{results_base}/prompt_{prompt_id}.json"
+                existing = _load_existing_results(results_file)
+                if existing is not None:
+                    print(f"[Eval] Already done: prompt {prompt_id}")
+                    print(make_table(existing))
+                    all_results[f"{promptlab_name}_prompt_{prompt_id}"] = existing
+                else:
+                    pending_prompt_ids.append(prompt_id)
+        else:
+            pending_prompt_ids = list(prompt_ids)
 
     if not pending_prompt_ids:
-        print(f"[Eval] All {len(prompt_ids)} prompts already evaluated. Skipping.")
+        total = len(prompt_ids) * runs if multiple_runs else len(prompt_ids)
+        print(f"[Eval] All {total} evaluations already done. Skipping.")
         return
 
-    print(f"[Eval] {len(pending_prompt_ids)}/{len(prompt_ids)} prompts need evaluation")
+    if multiple_runs:
+        total_pending = sum(len(pending_runs[pid]) for pid in pending_prompt_ids)
+        print(f"[Eval] {total_pending}/{len(prompt_ids) * runs} prompt-runs need evaluation")
+    else:
+        print(f"[Eval] {len(pending_prompt_ids)}/{len(prompt_ids)} prompts need evaluation")
 
     # ── Fetch prompts & merge with test data ──
     prompts, promptlab_name = _load_and_merge_prompts(
@@ -331,17 +372,15 @@ def run_evaluation(
         lm_obj = _init_hflm(model_path, adapter_path, batch_size)
 
     # ── Evaluate each prompt ──
-    print(f"[Eval] Evaluating {len(prompts)} prompts sequentially")
+    if multiple_runs:
+        print(f"[Eval] Evaluating {len(prompts)} prompts × pending runs")
+    else:
+        print(f"[Eval] Evaluating {len(prompts)} prompts sequentially")
 
     for i, prompt in enumerate(prompts, 1):
         prompt_id = prompt["id"]
-        results_file = f"{results_dir}/prompt_{prompt_id}.json"
 
-        print("-" * 80)
-        print(f"[Eval] Prompt {i}/{len(prompts)} (ID: {prompt_id})")
-        print("-" * 80)
-
-        # Prepare artifacts
+        # Prepare artifacts (once per prompt, shared across runs)
         hf_dataset = task_fns.create_hf_dataset(prompt)
         if system_prompt_text:
             text_field = TASK_TEXT_FIELD[task_name]
@@ -351,17 +390,39 @@ def run_evaluation(
             task_name, promptlab_name, prompt_id, artifacts_prefix,
         )
 
-        # Run evaluation
-        result = _run_lm_eval(
-            lm_obj, eval_task_name, promptlab_name, artifacts_prefix,
-            apply_chat_template=use_chat_template,
-        )
-        print(make_table(result))
+        if multiple_runs:
+            run_numbers = pending_runs[prompt_id]
+            for run_num in run_numbers:
+                results_file = f"{results_base}/prompt_{prompt_id}/run_{run_num}.json"
 
-        # Save results
-        _save_results(result, results_file)
-        print(f"[Eval] Saved results for prompt {prompt_id}")
-        all_results[f"{promptlab_name}_prompt_{prompt_id}"] = result
+                print("-" * 80)
+                print(f"[Eval] Prompt {i}/{len(prompts)} (ID: {prompt_id}) — Run {run_num}/{runs}")
+                print("-" * 80)
+
+                result = _run_lm_eval(
+                    lm_obj, eval_task_name, promptlab_name, artifacts_prefix,
+                    apply_chat_template=use_chat_template,
+                )
+                print(make_table(result))
+
+                _save_results(result, results_file)
+                print(f"[Eval] Saved: prompt_{prompt_id}/run_{run_num}.json")
+        else:
+            results_file = f"{results_base}/prompt_{prompt_id}.json"
+
+            print("-" * 80)
+            print(f"[Eval] Prompt {i}/{len(prompts)} (ID: {prompt_id})")
+            print("-" * 80)
+
+            result = _run_lm_eval(
+                lm_obj, eval_task_name, promptlab_name, artifacts_prefix,
+                apply_chat_template=use_chat_template,
+            )
+            print(make_table(result))
+
+            _save_results(result, results_file)
+            print(f"[Eval] Saved results for prompt {prompt_id}")
+            all_results[f"{promptlab_name}_prompt_{prompt_id}"] = result
 
     print(
         f"\n[Eval] Done. Evaluated {len(prompts)} prompts "

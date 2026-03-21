@@ -27,6 +27,7 @@ def main(
     gpus: str = None,
     force_re_evaluate: bool = False,
     add_system_prompt: bool = False,
+    runs: int = 1,
 ):
     """Evaluate a model on a task dataset using lm-evaluation-harness.
 
@@ -38,10 +39,15 @@ def main(
         gpus: Comma-separated GPU IDs (default: all available).
         force_re_evaluate: Re-evaluate even if results already exist.
         add_system_prompt: Prepend global system prompt to each sample's input text.
+        runs: Number of evaluation runs per prompt (default: 1). When > 1, results are
+              saved to evaluation_results_multiple_runs/ with per-prompt folders.
     """
     if task is None:
         fire.Fire(main, command=["--help"])
         return
+
+    if runs < 1:
+        raise ValueError(f"--runs must be >= 1, got {runs}")
 
     # Resolve tasks
     if task == "all":
@@ -99,6 +105,7 @@ def main(
                         variant=variant_name,
                         force_re_evaluate=force_re_evaluate,
                         add_system_prompt=add_system_prompt,
+                        runs=runs,
                     )
 
 
