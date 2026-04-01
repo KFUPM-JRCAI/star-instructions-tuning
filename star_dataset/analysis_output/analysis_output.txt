@@ -1,0 +1,96 @@
+Fetching prompts from PromptLab API...
+  Total prompts fetched: 365
+  Approved LTR prompts: 352
+  Unique prompters (after merging): 7
+
+Task merges applied:
+  ['sentiment Analysis (open-domain targeted)', 'emotion classification'] -> "sentiment analysis"
+  ['question answering (yes/no)'] -> "question answering"
+  ['semantic question similarity'] -> "semantic similarity"
+  ['text classification', 'theme classification'] -> "topic classification"
+  ['claim verification'] -> "stance detection"
+
+============================================================
+STAR TEMPLATES — SUMMARY STATISTICS
+============================================================
+  Total prompts (all statuses):    365
+  Approved LTR prompts:            352
+  Unique tasks (after merging):    20
+  Unique tasks (before merging):   27
+  Unique datasets:                 87
+  Unique prompters:                7
+
+Task                                          Templates
+--------------------------------------------------------
+  sentiment analysis                                 44
+  stance detection                                   31
+  dialect identification                             29
+  summarization                                      27
+  multiple choice                                    24
+  question answering                                 24
+  topic classification                               24
+  sarcasm detection                                  19
+  machine translation                                18
+  diacritization                                     16
+  NLI                                                15
+  review classification                              14
+  offensive language detection                       14
+  commonsense validation                             13
+  math solving                                       11
+  era classification                                 10
+  meter classification                                6
+  named entity recognition                            6
+  semantic similarity                                 5
+  Others                                              2
+
+Saved: /raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning/star_dataset/analysis_output/star_templates_per_task.pdf
+
+Prompter        Count
+----------------------
+  1               122
+  2                99
+  3                43
+  4                38
+  5                21
+  6                20
+  7                 9
+Saved: /raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning/star_dataset/analysis_output/star_contributions_per_prompter.pdf
+
+Template length (words): min=4, max=161, mean=43.4, median=30.0
+Saved: /raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning/star_dataset/analysis_output/star_template_length_distribution.pdf
+
+============================================================
+STAR INSTRUCTIONS — MERGED SAMPLES PER TASK
+============================================================
+Loading star-instructions from star_dataset/push_to_hf/built_datasets/star-instructions...
+  Total merged instructions: 46,263,378
+  Selecting columns via Arrow and converting to pandas...
+  Exploding task lists...
+
+Task                                          Templates        Samples
+----------------------------------------------------------------------
+  era classification                                 10     16,698,429
+  machine translation                                18     10,341,467
+  meter classification                                6      7,053,010
+  diacritization                                     16      3,750,304
+  summarization                                      27      1,957,087
+  topic classification                               24      1,765,231
+  review classification                              14      1,691,874
+  dialect identification                             29      1,209,145
+  sentiment analysis                                 45        514,117
+  question answering                                 24        278,675
+  sarcasm detection                                  19        203,989
+  stance detection                                   31        153,435
+  commonsense validation                             13        143,000
+  named entity recognition                            6        122,947
+  offensive language detection                       14        113,298
+  multiple choice                                    24         96,784
+  math solving                                       12         72,000
+  NLI                                                16         56,954
+  semantic similarity                                 5         36,291
+  Others                                              2          5,341
+----------------------------------------------------------------------
+  Total                                             355     46,263,378
+
+Analysis complete.
+Output saved to: /raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning/star_dataset/analysis_output/analysis_output.txt

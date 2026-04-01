@@ -1,0 +1,1146 @@
+================================================================================
+Evaluation Prompts, Results Tables, and Generation Samples
+================================================================================
+
+################################################################################
+# Task: Natural Language Understanding (NLU)
+################################################################################
+
+------------------------------------------------------------
+Dataset: ArabicMMLU (MCQ)
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14571):
+    You have the following question: {{Question}} and the following options: {% if A %} {{answer_choices[0]}}. {{A}} {% endif %} {% if B %} {{answer_choices[1]}}. {{B}} {% endif %} {% if C %} {{answer_choices[2]}}. {{C}} {% endif %} {% if D %} {{answer_choices[3]}}. {{D}} {% endif %} {% if E %} {{answer_choices[4]}}. {{E}} {% endif %}, the correct answer is 
+    |||
+    {{answer_choices[["A", "B", "C", "D", "E"].index(answer)]}}
+
+  Prompt 2 (ID 14869):
+    This is a question. Select the correct answer!
+    
+    Question: 
+    {{Question}}
+    
+    Choices:
+    {% set choices = [A,B,C,D] %}
+    {% for choice in choices %}
+    {% if choice and choice.strip %}
+    {{ answer_choices[loop.index0] }}. {{choice}}
+    {% endif %}
+    {% endfor %}
+    Answer:
+    |||
+    {{answer_choices[answer_choices.index(answer)]}}
+
+  Prompt 3 (ID 14787):
+    You are tasked with solving a multiple-choice question (MCQ). Your goal is to analyze the question, consider all options carefully, and provide the correct answer.
+    Here is the MCQ question: {{Question}}
+    And here are the answer options:
+    {% if A %}
+    {{answer_choices[0]}}. {{A}} 
+    {% endif %}
+    {% if B %}
+    {{answer_choices[1]}}. {{B}} 
+    {% endif %}
+    {% if C %}
+    {{answer_choices[2]}}. {{C}} 
+    {% endif %}
+    {% if D %}
+    {{answer_choices[3]}}. {{D}} 
+    {% endif %}
+    {% if E %}
+    {{answer_choices[4]}}. {{E}}
+    {% endif %}
+    The correct answer among the above options is: 
+    |||
+    {{answer_choices[["A", "B", "C", "D", "E"].index(answer)]}}
+
+  Prompt 4 (ID 14797):
+    You are given the following choices:
+    {% set answers = [A, B, C, D, E] %}
+    {% for answer in answers %} {% if answer != None %}  {{ answer_choices[loop.index0] }}. {{ answer }} {% endif %}
+    {% endfor %}
+    Answer the following question: {{Question}}
+    |||
+    {{answer}}
+
+  Prompt 5 (ID 14798):
+    I am taking an MCQ test. Here is the question
+    {{Question}}
+    What is the answer given the following choices:
+    {% set answers = [A, B, C, D, E] %}
+    {% for answer in answers %} {% if answer != None %}  {{ answer_choices[loop.index0] }}. {{ answer }} {% endif %}{% endfor %}
+    |||
+    {{answer}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       48.94  48.85  51.19  31.43  31.34  42.35
+AceGPT-v2-8B  chat       56.31  53.64  57.99  32.52  29.60  46.01
+AceGPT-v2-8B  tuned      60.74  61.22  61.49  54.56  59.23  59.45
+
+Llama-3.1-8B  base       43.34  48.74  46.32  31.74  29.60  39.95
+Llama-3.1-8B  chat       50.34  54.64  53.27  32.92  28.96  44.03
+Llama-3.1-8B  tuned      56.98  57.25  56.77  51.13  54.75  55.37
+
+Qwen3-8B      base       60.20  63.50  61.64  34.21  36.96  51.30
+Qwen3-8B      chat       59.06  61.62  60.63  32.63  33.42  49.47
+Qwen3-8B      tuned      68.31  67.85  68.57  59.58  65.88  66.04
+
+------------------------------------------------------------
+Dataset: Belebele
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14854):
+    Given the following passage, query, and answer choices, output the letter corresponding to the correct answer.
+    ###
+    Passage: {{flores_passage}}
+    ###
+    Query: {{question}} 
+    ###
+    Choices:
+    {% set choices = [mc_answer1, mc_answer2, mc_answer3, mc_answer4] %}
+    {% for choice in choices %}
+    {{ answer_choices[loop.index0] }}. {{choice}}
+    {% endfor %}
+    ###
+    Answer:
+    |||
+    {{ answer_choices[correct_answer_num|int-1] }}
+
+  Prompt 2 (ID 14853):
+    Consider the following question:
+    {{question}} 
+    with the following context:
+    {{flores_passage}} 
+    Please answer the question selecting one of these answers:
+    {% set choices = [mc_answer1, mc_answer2, mc_answer3, mc_answer4] %}
+    {% for choice in choices %}
+    {{ answer_choices[loop.index0] }}. {{choice}}
+    {% endfor %}
+    |||
+    {{ answer_choices[correct_answer_num|int-1] }}
+
+  Prompt 3 (ID 14801):
+    Read the following Passage: {{flores_passage}}, 
+    Then answer the question: {{question}}
+    Choices:
+    {% set answer_keys = [mc_answer1, mc_answer2, mc_answer3, mc_answer4] %}
+    {% for answer in answer_keys %}  
+    {{ answer_choices[loop.index0] }}. {{ answer_keys[loop.index0] }} {% endfor %}
+    Your answer is:
+    |||
+    {{ answer_choices[correct_answer_num | int-1 ] }}
+
+  Prompt 4 (ID 14800):
+    Passage: {{flores_passage}}
+    Queion: {{question}}
+    Choices:
+    {% set answer_keys = [mc_answer1, mc_answer2, mc_answer3, mc_answer4] %}
+    {% for answer in answer_keys %}  
+    {{ answer_choices[loop.index0] }}. {{ answer_keys[loop.index0] }} {% endfor %}
+    Answer:
+    |||
+    {{ answer_choices[correct_answer_num | int -1] }}
+
+  Prompt 5 (ID 14575):
+    Given the following document : {{flores_passage}} and the question {{question}} and the following options: {{answer_choices[0]}}. {{mc_answer1}} {{answer_choices[1]}}. {{mc_answer2}} {{answer_choices[2]}}. {{mc_answer3}} {{answer_choices[3]}}. {{mc_answer4}}, the correct answer is:
+    |||
+    {{answer_choices[correct_answer_num | int-1]}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       47.56  26.00  46.67  46.33  43.56  42.02
+AceGPT-v2-8B  chat       64.44  25.11  66.78  67.11  61.56  57.00
+AceGPT-v2-8B  tuned      63.22  45.33  61.44  60.67  60.00  58.13
+
+Llama-3.1-8B  base       52.89  26.22  50.11  49.11  45.00  44.67
+Llama-3.1-8B  chat       58.67  22.56  57.56  53.56  52.67  49.00
+Llama-3.1-8B  tuned      58.56  35.44  56.00  56.56  57.00  52.71
+
+Qwen3-8B      base       67.67  39.67  67.67  69.44  68.56  62.60
+Qwen3-8B      chat       69.67  28.89  68.89  69.22  65.56  60.44
+Qwen3-8B      tuned      72.11  59.22  70.33  72.00  71.78  69.09
+
+################################################################################
+# Task: Natural Language Inference (NLI)
+################################################################################
+
+------------------------------------------------------------
+Dataset: ArEntail
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14581):
+    Given the {{premise}}, is it true that {{hypothesis}}? {{answer_choices | join(' or ')}}
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 2 (ID 14816):
+    Based on the premise: {{ premise }}, does the following hypothesis logically follow?
+    
+    Hypothesis: {{ hypothesis }}
+    
+    Answer with only "entails" or "not entails". No need for extra explanation
+    |||
+    {{ answer_choices[label] }}
+
+  Prompt 3 (ID 14818):
+    Task: Determine if the hypothesis follows logically from the premise. Follow these steps to reach a conclusion.
+    
+    Steps:
+    1. Understand the Premise: Carefully read and comprehend the premise to understand its main idea.
+    2. Examine the Hypothesis: Read the hypothesis and consider what it implies.
+    3. Compare for Logical Connection: Determine if the information in the premise directly supports or implies the hypothesis.
+    
+    Premise: {{ premise }}
+    Hypothesis: {{ hypothesis }}
+    
+    Answer: Based on the previous steps, respond with only one of these options (entails, not entail). Do not include any additional explanation.
+    |||
+    {{ answer_choices[label] }}
+
+  Prompt 4 (ID 14819):
+    Task: Determine if the statement, "{{ hypothesis }}," logically follows from the premise, "{{ premise }}." Carefully assess whether the premise provides enough support for the hypothesis. 
+    
+    Answer with "entails" if the hypothesis logically follows, or "not entail" if it does not. Provide only your answer.
+    |||
+    {{ answer_choices[label] }}
+
+  Prompt 5 (ID 14820):
+    Welcome to the "Logic Match Game!"
+    
+    Task: In this game, your challenge is to decide if the statement, "{{ hypothesis }}," logically follows from the premise, "{{ premise }}." Think carefully: does the premise support the hypothesis, or not?
+    
+    Rules: 
+    - If the hypothesis follows logically, answer with "entails".
+    - If it does not follow, answer with "not entail".
+    
+    Enter your answer (entails or not entail) to complete the challenge!
+    |||
+    {{ answer_choices[label] }}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       60.20  50.00  51.20  50.10  52.60  52.82
+AceGPT-v2-8B  chat       63.40  50.00  80.40  73.70  65.10  66.52
+AceGPT-v2-8B  tuned      93.70  94.30  95.00  94.20  94.50  94.34
+
+Llama-3.1-8B  base       51.00  50.00  51.60  50.20  50.60  50.68
+Llama-3.1-8B  chat       65.90  50.60  64.60  73.40  56.30  62.16
+Llama-3.1-8B  tuned      90.50  91.90  91.60  91.10  90.30  91.08
+
+Qwen3-8B      base       68.60  50.00  90.30  87.10  84.00  76.00
+Qwen3-8B      chat       79.40  79.00  83.30  83.30  81.00  81.20
+Qwen3-8B      tuned      93.90  95.00  94.10  94.00  92.80  93.96
+
+------------------------------------------------------------
+Dataset: ArabicTE
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14582):
+    Given that {{Premise}}, is it true that {{Hypothesis}}?
+    Choices: {{answer_choices | join(' or ')}}
+    Answer:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 2 (ID 14673):
+    You are given this context: {{Premise}} . Now, do you think the following holds:
+    {{Hypothesis}}.
+    Answer:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 3 (ID 14724):
+    Based on the following premise: {{Premise}}, does the following hypothesis entails?
+    {{Hypothesis}} 
+    Answer with either "entails" or "not entail".
+    The answer is:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 4 (ID 14805):
+    Given that {{Premise}} then it is true that {{Hypothesis}}, Choose from {{answer_choices | join(' , ')}}
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 5 (ID 14855):
+    You are tasked with determining whether the hypothesis {{Hypothesis}}, is entailed by the premise {{Premise}}. Entailment means that if the premise is true, the hypothesis must also be true. Answer with either "entails" or "not entail". 
+    The answer is:
+    |||
+    {{answer_choices[label]}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       52.13  52.13  47.87  50.71  47.87  50.14
+AceGPT-v2-8B  chat       55.45  53.79  53.55  50.24  51.66  52.94
+AceGPT-v2-8B  tuned      56.64  55.92  57.35  52.61  59.95  56.49
+
+Llama-3.1-8B  base       52.13  52.13  52.13  53.79  51.66  52.37
+Llama-3.1-8B  chat       55.45  56.40  52.37  53.32  52.84  54.08
+Llama-3.1-8B  tuned      56.40  54.03  55.45  52.13  58.06  55.21
+
+Qwen3-8B      base       63.51  55.69  74.17  52.13  64.93  62.09
+Qwen3-8B      chat       64.45  59.72  70.38  62.80  64.45  64.36
+Qwen3-8B      tuned      57.82  53.79  56.16  52.13  58.53  55.69
+
+################################################################################
+# Task: Dialect Identification
+################################################################################
+
+------------------------------------------------------------
+Dataset: AraBench
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14852):
+    Consider this text:
+    {{arabic}} 
+    If it is written as Modern-Standard-Arabic (MSA), then answer with MSA. If it is not an MSA text, then consider the following:
+    - If you think it is from Eastern Arabic countries, then answer with what you think is the closest, either Qatari or Lebanese.
+    - If you think it is from Western Arabic countries, then answer with what you think is the closest, either Tunisian, Morrocan, or Egyptian.
+    The answer is:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 2 (ID 14850):
+    You're tasked with identifying wether a given Arabic phrase is MSA or dialectical, and if not MSA, what's the dialect of it.
+    Your answer must be one of the following choices: {% for choice in answer_choices %}{{ choice }}{% if not loop.last %}, {% endif %}{% endfor %}.
+    ---
+    Sentence: {{arabic}}
+    Answer:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 3 (ID 14789):
+    Using your experience and knowledge of Arabic, can you infer the dialect used in the following text:
+    {{arabic}} 
+    You can only select from the following dialects:
+    {% for choice in answer_choices %}{{choice}}{% if loop.index != answer_choices|length %}, {% else %}. {% endif %} {% endfor %}
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 4 (ID 14781):
+    For the provided Arabic text: {{arabic}}, the most likely dialect (from  MSA, Tunisian, Moroccan, Qatari, Egyptian, or Lebanese) can be identified by analyzing unique words or phrases characteristic of a specific dialect as: 
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 5 (ID 14561):
+    Given the following Arabic text {{arabic}}, in what dialect was it written, choose from the following
+    {{answer_choices | join(', ')}}
+    |||
+    {{answer_choices[label]}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       21.23  17.04  18.68  14.47  16.98  17.68
+AceGPT-v2-8B  chat       15.46  39.36  17.18  14.43  13.02  19.89
+AceGPT-v2-8B  tuned      90.59  90.55  90.79  90.63  90.45  90.60
+
+Llama-3.1-8B  base       15.69  20.12  14.46  14.31  13.02  15.52
+Llama-3.1-8B  chat       15.81  25.36  14.37  14.24  13.02  16.56
+Llama-3.1-8B  tuned      88.39  89.05  89.24  89.19  88.91  88.96
+
+Qwen3-8B      base       13.42  20.68  14.90  13.52  14.45  15.39
+Qwen3-8B      chat       13.28  19.30  13.86  13.85  13.01  14.66
+Qwen3-8B      tuned      89.57  90.28  90.49  90.01  90.11  90.09
+
+------------------------------------------------------------
+Dataset: Arabic Dialects Dataset
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14102):
+    For this text: {{Text}}, I am not sure what dialect it is. Can you identify the dialect of the previous text given the following options: {% for choice in answer_choices %}{{ choice }}{% if not loop.last %}, {% endif %}{% endfor %}
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 2 (ID 14783):
+    For the following Arabic text: {{Text}}, the most probable dialect (among Levant, North Africa, Egypt, GULF, MSA) based on unique words or phrases specific to a dialect is:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 3 (ID 14784):
+    For the following Arabic text: {{Text}}, the most probable dialect based on cultural references that may indicate a specific region (among Levant, North Africa, Egypt, GULF, MSA) is:
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 4 (ID 14790):
+    Look at this text:
+    {{Text}} 
+    First, check if it's MSA (Modern Standard Arabic). If it is, mark it as MSA. If not, identify which dialect it belongs to from the following options: Levantine, North African, Egyptian, or Gulf.
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 5 (ID 14851):
+    Given an Arabic phrase, identify the dialect. You must answer with a single word from the following choices: {% for choice in answer_choices %}{{ choice }}{% if not loop.last %}, {% endif %}{% endfor %}.
+    ---
+    Phrase: "هنيك فيه قلم أزرق جبلي ياه"
+    Answer: Levant
+    ---
+    Phrase: "{{Text}}"
+    Answer:
+    |||
+    {{answer_choices[label]}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       16.13  16.15  16.49  16.13  17.30  16.44
+AceGPT-v2-8B  chat       16.13  24.67  23.76  16.13  39.39  24.02
+AceGPT-v2-8B  tuned      30.80  28.18  28.27  48.11  33.24  33.72
+
+Llama-3.1-8B  base       16.13  19.71  18.07  16.13  23.06  18.62
+Llama-3.1-8B  chat       16.13  30.99  23.54  16.13  44.87  26.33
+Llama-3.1-8B  tuned      23.24  26.70  28.50  19.50  37.98  27.18
+
+Qwen3-8B      base       16.13  20.45  22.15  16.13  47.84  24.54
+Qwen3-8B      chat       16.13  16.14  16.91  16.13  35.73  20.21
+Qwen3-8B      tuned      21.93  41.17  41.17  33.92  51.74  37.99
+
+################################################################################
+# Task: Sarcasm Detection
+################################################################################
+
+------------------------------------------------------------
+Dataset: ArSarcasm-v2
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14779):
+    Sarcasm is a form of verbal irony that is intended to express contempt or ridicule. Given the following tweet: {{tweet}}, predict if it is 'Sarcastic" or "Non Sarcastic".
+    |||
+    {{answer_choices[label]}}
+
+  Prompt 2 (ID 14802):
+    The following tweet: {{tweet}} is sarcastic? 
+    {{answer_choices | join(' or ')}}
+    |||
+    {{answer_choices[not label]}}
+
+  Prompt 3 (ID 14835):
+    Task: Determine if the following tweet is sarcastic or non-sarcastic.
+    
+    Tweet: {{ tweet }}
+    
+    Answer: Respond with "sarcastic" if the tweet is sarcastic, or "non-sarcastic" if it is not. No need for extra explanation.
+    |||
+    {{ answer_choices[label] }}
+
+  Prompt 4 (ID 14837):
+    Task: Determine if the following tweet contains sarcasm by following these steps.
+    
+    Steps:
+    1. Understand the Content: Read the tweet carefully to grasp the main idea or message.
+    2. Look for Sarcastic Cues: Consider if there are exaggeration, irony, or statements that may imply a hidden meaning.
+    3. Make a Decision: Based on the cues, decide if the tweet is sarcastic or non-sarcastic.
+    
+    Tweet: {{ tweet }}
+    
+    Answer: Based on the previous steps, respond with only one of these options (sarcastic or non-sarcastic). Do not include any additional explanation.
+    |||
+    {{ answer_choices[label] }}
+
+  Prompt 5 (ID 14838):
+    Task: Identify whether the following tweet is sarcastic or non-sarcastic by comparing it to typical sarcasm cues.
+    
+    Indicators of Sarcasm:
+    - Exaggerated praise or criticism
+    - Statements that imply the opposite of their literal meaning
+    - Use of irony or unexpected humor
+    
+    Tweet: {{ tweet }}
+    
+    Answer: Based on the indicators, respond with "sarcastic" if the tweet shows sarcasm, or "non-sarcastic" if it does not.
+    |||
+    {{ answer_choices[label] }}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       72.63  72.60  72.63  72.63  72.63  72.63
+AceGPT-v2-8B  chat       72.63  72.63  72.63  64.50  72.63  71.01
+AceGPT-v2-8B  tuned      77.97  77.73  78.27  78.30  78.63  78.18
+
+Llama-3.1-8B  base       72.50  69.50  72.63  72.63  72.63  71.98
+Llama-3.1-8B  chat       72.63  72.60  72.63  43.57  72.63  66.81
+Llama-3.1-8B  tuned      78.70  75.60  78.27  78.13  79.07  77.95
+
+Qwen3-8B      base       72.63  57.27  27.37  27.37  38.67  44.66
+Qwen3-8B      chat       72.53  72.83  28.50  27.37  51.00  50.45
+Qwen3-8B      tuned      77.63  76.23  77.70  77.90  77.80  77.45
+
+------------------------------------------------------------
+Dataset: iSarcasmEval
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14602):
+    You have the following tweet: {{text}} . Predict its sarcasm : {{answer_choices| join (', ')}}
+    |||
+    {{answer_choices[sarcastic]}}
+
+  Prompt 2 (ID 14780):
+    You are tasked with detecting whether a given tweet is sarcastic or not sarcastic. Consider the context, tone, and any cultural or current event references that might inform your interpretation. Based on that, identify if the following tweet: {{text}} is 'Sarcastic' or 'Non Sarcastic'.
+    Answer: 
+    |||
+    {{answer_choices[sarcastic]}}
+
+  Prompt 3 (ID 14859):
+    Is the following tweet sarcastic:
+    {{text}}
+    answer true or false
+    |||
+    {{answer_choices[sarcastic]}}
+
+  Prompt 4 (ID 14860):
+    The following tweet is not sarcastic:
+    {{text}}
+    answer true or false
+    |||
+    {{answer_choices[sarcastic]}}
+
+  Prompt 5 (ID 14864):
+    Question: Do you think it is sarcastic to say the following in Arabic {{text}}? Tell me either 'yes' or 'no'. Answer: 
+    |||
+    {{answer_choices[sarcastic]}}
+
+Results Table (metric: Accuracy (Normalized)):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       85.71  85.71  85.71  14.43  14.29  57.17
+AceGPT-v2-8B  chat       85.71  85.79  85.71  14.29  14.29  57.16
+AceGPT-v2-8B  tuned      85.00  86.07  86.00  14.14  14.29  57.10
+
+Llama-3.1-8B  base       85.71  85.71  85.43  16.00  14.29  57.43
+Llama-3.1-8B  chat       85.71  85.64  85.71  14.29  28.79  60.03
+Llama-3.1-8B  tuned      85.79  85.29  85.71  14.29  14.29  57.07
+
+Qwen3-8B      base       85.71  85.71  85.71  14.29  15.64  57.41
+Qwen3-8B      chat       85.71  84.50  85.71  14.29  25.79  59.20
+Qwen3-8B      tuned      85.57  86.43  85.71  14.29  14.29  57.26
+
+################################################################################
+# Task: Machine Translation
+################################################################################
+
+------------------------------------------------------------
+Dataset: OPUS-100
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14684):
+    Task: Translate the following English sentence into Arabic by reasoning step by step.
+    
+    English Sentence: {{ translation['en'] }}
+    
+    Step 1: Break Down the Meaning
+    Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+    
+    Step 2: Identify Important Words
+    Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic equivalents.
+    
+    Step 3: Construct the Translation
+    Using the keywords and your understanding of the sentence’s context, construct a smooth, grammatically correct translation in Arabic. Ensure it sounds natural and conveys the full meaning of the English sentence.
+    
+    |||
+    {{ translation['ar'] }}
+
+  Prompt 2 (ID 14688):
+    Task: Carefully translate the following English sentence into Arabic, ensuring that the translation reflects the original intent and context.
+    
+    English Sentence: {{ translation['en'] }}
+    
+    Guidelines:
+    1. Accurate Meaning: Ensure the translation conveys the exact meaning of the English sentence without losing any details.
+    2. Cultural and Contextual Fit: Consider any cultural or contextual nuances to translate feel natural in Arabic.
+    3. Tone Consistency: Maintain the same tone and style as the original, whether formal, casual, or neutral.
+    
+    |||
+    {{ translation['ar'] }}
+
+  Prompt 3 (ID 14680):
+    Task: Translate the following sentence from English to Arabic.
+    
+    English Sentence: {{ translation['en'] }}
+    
+    Translation:
+    Provide the correct translation in Arabic.
+    |||
+    {{ translation['ar'] }}
+
+  Prompt 4 (ID 14682):
+    Task: Translate the following sentence from English to Arabic as accurately as possible.
+    English Sentence: {{ translation['en'] }}
+    
+    Response:
+    Provide the translation in Arabic.
+    
+    |||
+    {{ translation['ar'] }}
+
+  Prompt 5 (ID 14640):
+    Translate the text from English to Arabic: {{translation ['en']}}
+    |||
+    {{translation['ar']}}
+
+Results Table (metric: BLEU):
+Model         Variant    P1     P2     P3     P4     P5     Avg
+------------  ---------  -----  -----  -----  -----  -----  -----
+AceGPT-v2-8B  base       4.16   1.09   0.43   3.77   4.78   2.85
+AceGPT-v2-8B  chat       12.35  12.53  11.01  12.95  11.76  12.12
+AceGPT-v2-8B  tuned      16.24  15.87  15.92  16.03  16.13  16.04
+
+Llama-3.1-8B  base       8.02   8.74   4.68   8.13   3.42   6.60
+Llama-3.1-8B  chat       9.69   8.11   9.07   8.98   3.20   7.81
+Llama-3.1-8B  tuned      14.35  14.26  13.66  13.81  14.05  14.03
+
+Qwen3-8B      base       9.91   7.46   9.44   8.42   8.60   8.77
+Qwen3-8B      chat       0.02   10.49  10.97  10.85  10.66  8.60
+Qwen3-8B      tuned      14.36  13.52  13.83  14.01  14.90  14.12
+
+Sample Outputs (5 examples, prompt ID 14684):
+
+  Example 1 (doc_id=1773):
+    Source: Task: Translate the following English sentence into Arabic by reasoning step by step.
+
+English Sentence: No. We only sell it.
+
+Step 1: Break Down the Meaning
+Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+
+Step 2: Identify Important Words
+Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic equivalents.
+
+Step 3: Construct the Translation
+Using the keywords a...
+    Reference: لا، نبيع فقط.
+    AceGPT-v2-8B (base): لا، نحن لا نبيعها.
+    AceGPT-v2-8B (chat): لا، نحن لا نبيعه فقط.
+    AceGPT-v2-8B (tuned): لا، نحن فقط نبيعها
+    Llama-3.1-8B (base): لا. نحن فقط بيعها.
+    Llama-3.1-8B (chat): لا. فقط بيعها.
+    Llama-3.1-8B (tuned): لا، نحن فقط نبيعها
+    Qwen3-8B (base): لا. نحن نبيع فقط.
+    Qwen3-8B (chat): **Step 1: Break Down the Meaning**
+    Qwen3-8B (tuned): لا، نحن نبيع فقط
+
+  Example 2 (doc_id=299):
+    Source: Task: Translate the following English sentence into Arabic by reasoning step by step.
+
+English Sentence: ♪ This fine day...
+
+Step 1: Break Down the Meaning
+Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+
+Step 2: Identify Important Words
+Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic equivalents.
+
+Step 3: Construct the Translation
+Using the keywords and...
+    Reference: ... هذا اليوم بخير
+    AceGPT-v2-8B (base): ♪ هذا اليوم الجميل...
+    AceGPT-v2-8B (chat): هذا اليوم الجميل...
+    AceGPT-v2-8B (tuned): ♪ هذا اليوم الجميل...
+    Llama-3.1-8B (base): ♪ هذا اليوم الجميل...
+    Llama-3.1-8B (chat): ♪ هذا اليوم الجميل...
+    Llama-3.1-8B (tuned): ♪ هذا اليوم الجميل...
+    Qwen3-8B (base): ♪ هذا يوم جميل...
+    Qwen3-8B (chat): Step 1: Break Down the Meaning
+    Qwen3-8B (tuned): ♪ هذا اليوم المميز...
+
+  Example 3 (doc_id=70):
+    Source: Task: Translate the following English sentence into Arabic by reasoning step by step.
+
+English Sentence: I write freelance articles about parties and fashion trends... in Town and Country UK.
+
+Step 1: Break Down the Meaning
+Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+
+Step 2: Identify Important Words
+Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic eq...
+    Reference: أكتـب مقالات حـول الحفلات والأزيـاء في البـلدة والريـف البـريطـاني
+    AceGPT-v2-8B (base): أكتب مقالات عن الأحداث والأنماط الفنية في المدينة والبلد.
+    AceGPT-v2-8B (chat): أكتب مقالات حرة عن الحفلات و اتجاهات الموضة... في Town and Country UK.
+    AceGPT-v2-8B (tuned): أكتب مقالات حرة عن الحفلات والاتجاهات في الموضة في (تاون أند كونتري) في المملكة المتحدة
+    Llama-3.1-8B (base): أكتب مقالات حرة عن الحفلات والأنماط العصرية... في مدينة وبلدية المملكة المتحدة.
+    Llama-3.1-8B (chat): أكتب مقالات حرة عن الأحداث الاجتماعية والأنماط العصرية... في تاون أند كاونتري UK.
+    Llama-3.1-8B (tuned): أنا أكتب مقالات عن الحفلات والأنماط في المجلة Town and Country UK
+    Qwen3-8B (base): أكتب مقالات مستقلة عن الحفلات والموضة في مجلة "Town and Country" في المملكة المتحدة.
+    Qwen3-8B (chat): **Step 1: Break Down the Meaning**
+    Qwen3-8B (tuned): أكتب مقالات مهنية عن الحفلات والاتجاهات الموضة في مجلة "تاون أند كاونتي" في المملكة المتحدة
+
+  Example 4 (doc_id=760):
+    Source: Task: Translate the following English sentence into Arabic by reasoning step by step.
+
+English Sentence: Excuse me. What's his problem?
+
+Step 1: Break Down the Meaning
+Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+
+Step 2: Identify Important Words
+Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic equivalents.
+
+Step 3: Construct the Translation
+Using the ...
+    Reference: عذرا , ماشكلته؟
+    AceGPT-v2-8B (base): "أعتذر، ما هو مشكلته؟"
+    AceGPT-v2-8B (chat): "عذراً. ما مشكلته؟"
+    AceGPT-v2-8B (tuned): عفواً ما مشكلته؟
+    Llama-3.1-8B (base): أرجوك. ما مشكلته؟
+    Llama-3.1-8B (chat): أرجو الإذن. ما مشكلة له؟
+    Llama-3.1-8B (tuned): عفوا ما مشكلته؟
+    Qwen3-8B (base): عذرًا. ما المشكلة لديه؟
+    Qwen3-8B (chat): **Step 1: Break Down the Meaning**
+    Qwen3-8B (tuned): عفوا، ما المشكلة لديه؟
+
+  Example 5 (doc_id=671):
+    Source: Task: Translate the following English sentence into Arabic by reasoning step by step.
+
+English Sentence: - l'm gonna go tell her this is a mistake. - No, no, no, Dad.
+
+Step 1: Break Down the Meaning
+Start by carefully analyzing the sentence. Identify the subject, verb, and key details to fully understand its meaning in context.
+
+Step 2: Identify Important Words
+Highlight the keywords or phrases that carry significant meaning, and think about their most accurate Arabic equivalents.
+
+Step 3: Const...
+    Reference: إنظر,اه سأخبرها أن كل هذا الأمر كان خطئاً فادحاً
+    AceGPT-v2-8B (base): - سأذهب وأخبرها بأن هذا خطأ. - لا، لا، لا، يا أبي.
+    AceGPT-v2-8B (chat): - أنا ذاهب لأخبرها أن هذا خطأ. - لا، لا، لا، يا أبي.
+    AceGPT-v2-8B (tuned): -سأذهب لأخبرها بأن هذا خطأ -لا، لا، لا يا أبي
+    Llama-3.1-8B (base): - l'm gonna go tell her this is a mistake. - No, no, no, Dad.
+    Llama-3.1-8B (chat): - سأذهب وأقول لها إن هذا خطأ. - لا، لا، لا، أبي.
+    Llama-3.1-8B (tuned): -سأذهب وأخبرها بأن هذا خطأ
+    Qwen3-8B (base): - سأذهب告诉她这是个错误。- 不，不，不，爸爸。
+    Qwen3-8B (chat): **Step 1: Break Down the Meaning**
+    Qwen3-8B (tuned): سأذهب لأقول لها أن هذا خطأ - لا لا لا أبي -
+
+------------------------------------------------------------
+Dataset: Tatoeba
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14866):
+    Translate the text from English to Arabic:
+    {{targetString}}
+    Translation:
+    |||
+    {{sourceString}}
+
+  Prompt 2 (ID 14867):
+    As an expert in Arabic, I can translate the below text from English to Arabic as:
+    English Text: {{targetString}}
+    Arabic translation: 
+    |||
+    {{sourceString}}
+
+  Prompt 3 (ID 14868):
+    Translate the text from English to Arabic. Read the English text carefully to understand its meaning, context, and tone. Provide a natural sounding translation in Modern Standard Arabic (MSA).
+    English text: {{targetString}}
+    Arabic text: 
+    |||
+    {{sourceString}}
+
+  Prompt 4 (ID 14889):
+    Translate from English to Arabic.
+    English sentence: {{targetString}} 
+    Arabic sentence:
+    |||
+    {{sourceString}}
+
+  Prompt 5 (ID 14890):
+    The following English sentence: "{{targetString}}"  can be translated to Arabic as:|||{{sourceString}}
+
+Results Table (metric: BLEU):
+Model         Variant    P1     P2     P3     P4     P5    Avg
+------------  ---------  -----  -----  -----  -----  ----  -----
+AceGPT-v2-8B  base       12.54  12.10  10.81  14.62  4.74  10.96
+AceGPT-v2-8B  chat       19.26  18.61  19.16  19.10  2.79  15.78
+AceGPT-v2-8B  tuned      12.96  13.60  13.59  14.65  9.17  12.79
+
+Llama-3.1-8B  base       10.77  14.55  14.18  14.56  0.17  10.85
+Llama-3.1-8B  chat       15.07  14.62  13.90  14.76  1.20  11.91
+Llama-3.1-8B  tuned      10.56  10.34  10.67  10.30  7.60  9.89
+
+Qwen3-8B      base       15.22  14.23  10.11  8.63   0.47  9.73
+Qwen3-8B      chat       16.31  15.55  16.71  16.32  0.20  13.02
+Qwen3-8B      tuned      10.76  10.53  9.59   11.02  7.38  9.86
+
+Sample Outputs (5 examples, prompt ID 14866):
+
+  Example 1 (doc_id=6576):
+    Source: Translate the text from English to Arabic:
+Don't sleep with the windows open.
+Translation:
+    Reference: لا تنم والنوافذ مفتوحة.
+    AceGPT-v2-8B (base): لا تترك النوافذ مفتوحة أثناء النوم.
+    AceGPT-v2-8B (chat): لا تنام مع النوافذ مفتوحة.
+    AceGPT-v2-8B (tuned): لا تنام مع النوافذ مفتوحة
+    Llama-3.1-8B (base): لا تُستَريح مع النوافذ مفتوحة.
+    Llama-3.1-8B (chat): لا تنام مع النوافذ مفتوحة.
+    Llama-3.1-8B (tuned): لا تنام مع النوافذ مفتوحة
+    Qwen3-8B (base): لا تخلدِ النوم مع النوافذ مفتوحة.
+    Qwen3-8B (chat): لا ت Slepp مع النوافذ مفتوحة.
+    Qwen3-8B (tuned): لا تَنْمِي مع النوافذ مفتوحة.
+
+  Example 2 (doc_id=1130):
+    Source: Translate the text from English to Arabic:
+Sami preyed on Layla's openness and vulnerability.
+Translation:
+    Reference: افترس سامي انفتاح ليلى و ضعفها,
+    AceGPT-v2-8B (base): استغل سامي فرصة للاستفادة من الفتاة التي كانت مفتوحة ومتأثرة.
+    AceGPT-v2-8B (chat): استغل سامي شفافية ولين ليلة.
+    AceGPT-v2-8B (tuned): سامي استغل ضعف (ليلى) ووضوحها
+    Llama-3.1-8B (base): Sami استغل Layla's openness and vulnerability.
+    Llama-3.1-8B (chat): استغل سامي عفاف ليلة وضعفها.
+    Llama-3.1-8B (tuned): سامي استغلّ كون (ليلى) واضحة ومتفتحة
+    Qwen3-8B (base): Sami استغل صفاء و ضعف Layla.
+    Qwen3-8B (chat): استغل سامي صدق ليليا وعُرضتها.
+    Qwen3-8B (tuned): سامي استغل كون (ليال) مفتوحة و ضعيفة
+
+  Example 3 (doc_id=255):
+    Source: Translate the text from English to Arabic:
+I like both dogs and cats.
+Translation:
+    Reference: أحب القطط والكلاب.
+    AceGPT-v2-8B (base): أحب كل من الكلاب والقطط.
+    AceGPT-v2-8B (chat): أحب كل من الكلاب والقطط.
+    AceGPT-v2-8B (tuned): أحب كل الكلاب والقطط
+    Llama-3.1-8B (base): أحب كلا الكلاب والقطط.
+    Llama-3.1-8B (chat): أحب كلاباً وكلاباً.
+    Llama-3.1-8B (tuned): أحب كل الكلاب والقطط
+    Qwen3-8B (base): أحب كلبًا وقطًا.
+    Qwen3-8B (chat): أحب كل من الكلاب والقطط.
+    Qwen3-8B (tuned): أنا أحب كل الكلاب والقطط.
+
+  Example 4 (doc_id=7548):
+    Source: Translate the text from English to Arabic:
+I have no money on me.
+Translation:
+    Reference: ليس معي نقود
+    AceGPT-v2-8B (base): لا يوجد لدي مال.
+    AceGPT-v2-8B (chat): ليس لدي نقود معي.
+    AceGPT-v2-8B (tuned): ليس لدي مال معي
+    Llama-3.1-8B (base): لا أملك مالاً معي.
+    Llama-3.1-8B (chat): لا أملك أي مبلغ من المال معي.
+    Llama-3.1-8B (tuned): ليس لدي مال
+    Qwen3-8B (base): لا أملك أي أموال معي.
+    Qwen3-8B (chat): لا عندي أي مال معى.
+    Qwen3-8B (tuned): ليس لدي أي مال معى
+
+  Example 5 (doc_id=2776):
+    Source: Translate the text from English to Arabic:
+Where's my book?
+Translation:
+    Reference: أين كتابي؟
+    AceGPT-v2-8B (base): أين كتابي؟
+    AceGPT-v2-8B (chat): أين كتابي؟
+    AceGPT-v2-8B (tuned): أين كتابي؟
+    Llama-3.1-8B (base): أين كتابي؟
+    Llama-3.1-8B (chat): أين كتابي؟
+    Llama-3.1-8B (tuned): أين كتابي؟
+    Qwen3-8B (base): أين كتابي؟
+    Qwen3-8B (chat): أين كتابي؟
+    Qwen3-8B (tuned): أين كتابي؟
+
+################################################################################
+# Task: Summarization
+################################################################################
+
+------------------------------------------------------------
+Dataset: XLSUM
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14871):
+    You are an Arabic summarization expert! The summarization of the following Arabic passage: "{{text}}" is:
+    |||
+    {{target}}
+
+  Prompt 2 (ID 14803):
+    Create tldr for the following text: {{text}}
+    |||
+    {{target}}
+
+  Prompt 3 (ID 14856):
+    A concise and informative summary that captures the main points of the Arabic article "{{text}}" while maintaining its original meaning is:
+    |||
+    {{target}}
+
+  Prompt 4 (ID 14858):
+    Generate a summary for the following Arabic document: {{text}}
+    |||
+    {{target}}
+
+  Prompt 5 (ID 14668):
+    This article {{text}}  with the title {{title}}  can be summarized as:
+    |||
+    {{target}}
+
+Results Table (metric: BLEU):
+Model         Variant    P1    P2    P3    P4    P5     Avg
+------------  ---------  ----  ----  ----  ----  -----  -----
+AceGPT-v2-8B  base       0.12  0.00  0.29  0.00  0.33   0.15
+AceGPT-v2-8B  chat       0.63  0.00  0.09  0.00  0.15   0.17
+AceGPT-v2-8B  tuned      9.15  8.91  9.29  8.91  12.82  9.82
+
+Llama-3.1-8B  base       0.39  0.36  0.06  0.32  0.98   0.42
+Llama-3.1-8B  chat       0.54  0.35  0.04  0.40  1.11   0.49
+Llama-3.1-8B  tuned      5.82  5.78  5.81  5.76  8.66   6.37
+
+Qwen3-8B      base       0.39  0.59  0.05  0.38  0.20   0.32
+Qwen3-8B      chat       0.23  1.23  0.38  0.14  0.07   0.41
+Qwen3-8B      tuned      8.07  8.05  8.06  8.11  11.63  8.78
+
+Sample Outputs (5 examples, prompt ID 14871):
+
+  Example 1 (doc_id=977):
+    Source: You are an Arabic summarization expert! The summarization of the following Arabic passage: "يرفض المتظاهرون ترك الميدان 
+
+وما زال الآلاف من المتظاهرين المعارضين يعتصمون في ميدان الاستقلال وسط العاصمة رغم الاعلان عن اتفاق بين الرئيس فيكتور يانوكوفيتش والمعارضة من شأنه انهاء الأزمة السياسية التي تعصف بالبلاد.
+
+وبموجب الاتفاق الجديد، سيصار الى تشكيل حكومة وحدة وطنية واجراء انتخابات رئاسية مبكرة اواخر هذا العام.
+
+كما ينص الاتفاق، الذي توسط في التوصل اليه وزراء خارجية اوروبيون، على اجراء اصلاحات في ن...
+    Reference: تفيد التقارير الواردة إلينا من مراسلي بي بي سي في العاصمة الأوكرانية كييف بأن المتظاهرين المعارضين يسيطرون على جميع مداخل القصر الرئاسي الذي بدا خاليا وبلا حراسة.
+    AceGPT-v2-8B (base): article is_not:blog is_not:press_release is_not:video is_not:slide is_not:gallery is_not:infographic is_not:interactive is_not:quiz is_not:poll is_not:quiz_answer is_not:poll_answer is_not:quiz_result is_not:poll_result is_not:quiz_question is_not:poll_question is_not:quiz_option is_not:poll_option is_not:quiz_user_answer is_not:poll_user_answer is_not:quiz_user_result is_not:poll_user_result is_not:quiz_user_option is_not:poll_user_option is_not:quiz_user_question is_not:poll_user_question is_n...
+    AceGPT-v2-8B (chat): "The protesters refuse to leave the square and thousands of opposition protesters are still camping in Independence Square in the capital despite the announcement of an agreement between President Viktor Yanukovych and the opposition that is supposed to end the political crisis that is shaking the country.
+    AceGPT-v2-8B (tuned): توصلت الحكومة الأوكرانية إلى اتفاق مع المعارضة ينهي الأزمة السياسية التي تعصف بالبلاد منذ أسابيع.
+    Llama-3.1-8B (base): ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar" " is:ar
+    Llama-3.1-8B (chat): The protesters reject leaving the square Thousands of protesters who oppose the agreement between President Viktor Yanukovych and the opposition continue to occupy Independence Square in the capital, Kiev, despite the announcement of an agreement that is expected to end the political crisis that has been affecting the country. According to the new agreement, a national unity government will be formed and early presidential elections will be held later this year. The agreement also provides for e...
+    Llama-3.1-8B (tuned): أعلن زعماء المعارضة في أوكرانيا، في اجتماع مع الرئيس فيكتور يانوكوفيتش، التوصل الى اتفاق على حل الأزمة السياسية التي تعصف بالبلاد.
+    Qwen3-8B (base): "يرفض المتظاهرون ترك الميدان ويعتصمون في ميدان الاستقلال رغم الاتفاق بين الرئيس يانوكوفيتش والمعارضة لتشكيل حكومة وحدة وطنية وانتخابات رئاسية مبكرة. يشكك المحتجون في الاتفاق ويهدد اليمينيون المتطرفون بتصعيد الأزمة إذا لم يستقيل يانوكوفيتش. البرلمان يصوت لتقليص صلاحيات الرئيس ويطلق سراح تيموشينكو. يرحب البيت الأبيض بالاتفاق ويؤكد على شجاعة زعماء المعارضة."
+    Qwen3-8B (chat): **ملخص باللغة العربية:**
+    Qwen3-8B (tuned): اعلنت الحكومة الأوكرانية انها ستبدأ في تطبيق الاتفاق الذي توصلت اليه مع المعارضة لحل الأزمة السياسية التي تعصف بالبلاد.
+
+  Example 2 (doc_id=218):
+    Source: You are an Arabic summarization expert! The summarization of the following Arabic passage: "قالت مايكروسوفت ان المتسللين كانوا "متحمسين للغاية".
+
+وأضافت الشركة أن المجموعة هاجمت أكثر من 200 حساب بريد إلكتروني، بعضها يخص أشخاصا مرتبطين بـ "حملة رئاسية أمريكية".
+
+ونقلت وكالة رويترز للأنباء عن مصادر قولها إن الهدف هو حملة إعادة انتخاب الرئيس دونالد ترامب.
+
+ولم تعلق إيران بعد على هذه المزاعم.
+
+وقال متحدث باسم حملة ترامب إنه لا يوجد ما يشير إلى أنها كانت مستهدفة.
+
+ماذا أعلنت مايكروسوفت؟
+
+قالت الشركة ...
+    Reference: قالت شركة مايكروسوفت للتقنية إن قراصنة "يرجح ارتباطهم بالحكومة الإيرانية" استهدفوا حملة الانتخابات الرئاسية الأمريكية، المقررة العام المقبل 2020.
+    AceGPT-v2-8B (base): article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:article " is:articl...
+    AceGPT-v2-8B (chat): "مايكروسوفت أعلنت أن المتسللين كانوا "متحمسين للغاية" لاختراق البريد الإلكتروني لأكثر من 200 حساب، بعضها يخص أشخاصا مرتبطين بـ "حملة رئاسية أمريكية". الهدف كان حملة إعادة انتخاب الرئيس دونالد ترامب. لم تعلق إيران بعد على هذه المزاعم. متحدث باسم حملة ترامب قال إنه لا يوجد ما يشير إلى أنها كانت مستهدفة. مايكروسوفت قالت في بيان: "نعلن لكم اليوم أننا رصدنا مؤخرا نشاطا إلكترونيا خطيرا، من قبل مجموعة تهديد نسميها (فسفوراس)، والتي نعتقد أن مصدرها إيران ومرتبطة بالحكومة الإيرانية". وأضافت أن المجموعة "ق...
+    AceGPT-v2-8B (tuned): قالت شركة مايكروسوفت إنها رصدت نشاطا إلكترونيا خطيرا، من قبل مجموعة من القراصنة يطلق عليها اسم "فسفوراس"، والتي نعتقد أن مصدرها إيران ومرتبط بالحكومة الإيرانية.
+    Llama-3.1-8B (base): article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:article is:news is:articl...
+    Llama-3.1-8B (chat): قالت مايكروسوفت ان المتسللين كانوا "متحمسين للغاية". وأضافت الشركة أن المجموعة هاجمت أكثر من 200 حساب بريد إلكتروني، بعضها يخص أشخاصا مرتبطين بـ "حملة رئاسية أمريكية". ونقلت وكالة رويترز للأنباء عن مصادر قولها إن الهدف هو حملة إعادة انتخاب الرئيس دونالد ترامب. ولم تعلق إيران بعد على هذه المزاعم. وقال متحدث باسم حملة ترامب إنه لا يوجد ما يشير إلى أنها كانت مستهدفة. ماذا أعلنت مايكروسوفت؟ قالت الشركة في بيان: "نعلن لكم اليوم أننا رصدنا مؤخرا نشاطا إلكترونيا خطيرا، من قبل مجموعة تهديد نسميها (فسفور...
+    Llama-3.1-8B (tuned): أعلنت شركة مايكروسوفت الأمريكية، التي تملك بريد إلكتروني "Outlook"، أن مجموعة من القراصنة الإيرانيين، تعرف باسم "فسفوراس"، قامت بقرصنة أكثر من 200 حساب بريد إلكتروني، يخص أشخاصا مرتبطين بحملة ترامب الرئاسية.
+    Qwen3-8B (base): "قالت مايكروسوفت إن المتسللين كانوا "متحمسين للغاية" وهاجموا أكثر من 200 حساب بريد إلكتروني، بعضها يخص أشخاصا مرتبطين بحملة رئاسية أمريكية. الهدف هو حملة إعادة انتخاب الرئيس دونالد ترامب. مايكروسوفت أعلنت أن المجموعة التي هاجمت الحسابات تسمى (فسفوراس) ونعتقد أن مصدرها إيران ومرتبط بالحكومة الإيرانية. تم اختراق أربعة حسابات فقط في نهاية المطاف، لا يرتبط أي منها بحملة انتخابية، ولا مسؤولين سابقين أو حاليين. وحاول القراصنة الاستيلاء على الحسابات، في هجمات وصفتها الشركة بأنها "ليست متطورة تقنياً"، و...
+    Qwen3-8B (chat): **ملخص النص العربي:**
+    Qwen3-8B (tuned): قالت شركة مايكروسوفت إنها رصدت مجموعة قراصنة إيرانية، تسعى إلى اختراق حسابات بريد إلكتروني لمسؤولين أمريكيين، وصحفيين، وإيرانيين بارزين.
+
+  Example 3 (doc_id=2444):
+    Source: You are an Arabic summarization expert! The summarization of the following Arabic passage: "تجرى المفاوضات بين الدول الثلاث عبر تقنية الفيديو بسبب أزمة وباء كورونا
+
+ويرى فريق من الكتاب أن الشأن السياسي الداخلي في إثيوبيا يقف وراء تعنتها، في الوصول لحل مع مصر حتى هذه اللحظة.
+
+فيما ناقش فريق آخر إمكانية لجوء مصر للحل العسكري، لو فشلت المفاوضات الحالية. 
+
+حديث الحرب "وقت التفاوض" 
+
+يقول حسن أبو طالب، في جريدة "الشرق الأوسط" اللندنية، إن "أديس أبابا المحملة بهموم الانتقال السياسي والانتخابات المؤجلة...
+    Reference: سلطت صحف عربية الضوء على المحادثات القائمة بين إثيوبيا ومصر والسودان، حول سد النهضة الإثيوبي.
+    AceGPT-v2-8B (base): article is_suitable_for_preview: true is_suitable_for_indexing: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable_for_snippet: true is_suitable...
+    AceGPT-v2-8B (chat): "The negotiations between the three countries are taking place via video technology due to the Corona virus crisis.
+    AceGPT-v2-8B (tuned): ناقشت صحف عربية، بنسختيها الورقية والإلكترونية، مسار المفاوضات بين مصر وإثيوبيا والسودان، حول سد النهضة.
+    Llama-3.1-8B (base): "The negotiations between the three countries are taking place through video technology due to the Corona virus crisis A team of writers believes that the internal political situation in Ethiopia is behind its reluctance to reach a solution with Egypt until now. Another team discussed the possibility of Egypt resorting to military solutions, if the current negotiations fail. The war "time for negotiations" Hassan Abu Talib, in the London newspaper "Al-Sharq Al-Awsat", says that "Addis Ababa, bur...
+    Llama-3.1-8B (chat): " The passage discusses the ongoing negotiations between Egypt, Sudan, and Ethiopia over the Grand Ethiopian Renaissance Dam (GERD). The negotiations are taking place via video conferencing due to the COVID-19 pandemic. The passage highlights the internal political situation in Ethiopia, which is seen as a major obstacle to reaching a deal with Egypt. Some experts believe that Ethiopia is using the dam as a bargaining chip to gain concessions from Egypt, while others suggest that Egypt may resor...
+    Llama-3.1-8B (tuned): يرى الكاتب المصري حسن أبو طالب في جريدة "الشرق الأوسط" اللندنية أن "إثيوبيا تُحاول إقناع مصر، بأنها دولة أفريقية، وليست عربية، وأنها لا تملك حقوقاً مائية، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك حقاً في المياه، وأنها لا تملك ح...
+    Qwen3-8B (base): "تجرى المفاوضات بين مصر وإثيوبيا عبر الفيديو بسبب كورونا. يرى الكتاب أن الشأن السياسي الداخلي في إثيوبيا يقف وراء تعنتها في الوصول لحل مع مصر. فريق آخر يرى إمكانية لجوء مصر للحل العسكري إذا فشلت المفاوضات. يتحدث حسن أبو طالب في "الشرق الأوسط" عن أديس أبابا المحملة بهموم الانتقال السياسي والانتخابات المؤجلة، ويرى أن مصر تُحّمل مسؤولية فشل المفاوضات لأنها تتمسك بحقوقها ومرجعية وثيقة واشنطن. يرى محمود الحضري في "البوابة نيوز" أن هناك حالة تعبئة ضد مصر في أديس أبابا، وأن إثيوبيا في مرحلة انتخابات، و...
+    Qwen3-8B (chat): **ملخص النص العربي:**
+    Qwen3-8B (tuned): ناقشت صحف عربية المفاوضات الجارية بين مصر وإثيوبيا والسودان حول سد النهضة الإثيوبي، وتأثيرها على مستقبل العلاقات بين الدول الثلاث.
+
+  Example 4 (doc_id=2175):
+    Source: You are an Arabic summarization expert! The summarization of the following Arabic passage: "ايمان عريقات 
+
+بي بي سي - عمّان
+
+
+
+الأردن يشهد احتجاجات متواصلة ضد ارتفاع أسعار المحروقات
+
+فقد تمحورت قائمة المطالب الشعبية حول الغاء قرار رفع الاسعار على المواد الاساسية وعلى رأسها المحروقات والمشتقات النفطية ، اضافة الى المطالب بأعادة النظر في قانون الانتخابات المعمول فيه في الاردن.
+
+وحملت هذه التحركات أسماء كثيرة منها الانتفاضة الشعبية من أجل الاصلاح وهبة تشرين ، رفعتها جهات الحراك الشعبي بمختلف ألوانه...
+    Reference: بات مشهد رفع الشعارات المناهضة للسياسات الحكومية الاردنية متكررا في شارع يشهد منذ أكثر من عشرين شهرا حراكا شعبيا.
+    AceGPT-v2-8B (base): article language:ar "
+    AceGPT-v2-8B (chat): article is:news -site:bbc.co.uk "arabic" "protest" "Jordan" "fuel prices" "government" "elections" "reform" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstrations" "demonstration" "demonstratio...
+    AceGPT-v2-8B (tuned): لا تزال الاحتجاجات الشعبية في الأردن مستمرة منذ نحو عامين على خلفية قرار الحكومة الاردنية رفع أسعار المحروقات والمشتقات النفطية بنسب تصل الى 53 في المائة.
+    Llama-3.1-8B (base): arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. " is:arabic" is not recognized as a valid DITA element. "...
+    Llama-3.1-8B (chat): أردن" " is:النفط" " is:السياسة" " is:الاقتصاد" " is:الانتخابات" " is:الاحتجاجات" " is:الاردن" " is:النفط" " is:السياسة" " is:الاقتصاد" " is:الانتخابات" " is:الاحتجاجات" " is:الاردن" " is:النفط" " is:السياسة" " is:الاقتصاد" " is:الانتخابات" " is:الاحتجاجات" " is:الاردن" " is:النفط" " is:السياسة" " is:الاقتصاد" " is:الانتخابات" " is:الاحتجاجات" " is:الاردن" " is:النفط" " is:السياسة" " is:الاقتصاد" " is:الانتخابات" " is:الاحتجاجات" " is:ال
+    Llama-3.1-8B (tuned): بعد نحو عامين من احتجاجات الشارع الاردني على ارتفاع أسعار المحروقات، يبدو أن الحراك الشعبي لا يزال قائما.
+    Qwen3-8B (base): "The Jordanian government is facing continuous protests against the increase in fuel prices. The popular demands include the cancellation of the decision to raise prices on basic goods, especially fuel and petroleum products, as well as a review of the electoral law currently in force in Jordan. These movements, named the Popular Uprising for Reform and the Tishreen Wave, were raised by various political and tribal factions, as well as Jordanian trade unions. After two years, protesters continue...
+    Qwen3-8B (chat): **ملخص النص العربي:**
+    Qwen3-8B (tuned): تشهد المملكة الاردنية الهاشمية منذ نحو عامين حراكا شعبيا واسع النطاق يطالب بإجراء اصلاحات سياسية واقتصادية واجتماعية.
+
+  Example 5 (doc_id=1978):
+    Source: You are an Arabic summarization expert! The summarization of the following Arabic passage: "يغطي تقرير شيلكوت فترة عقد تقريبا لقرارات سياسة الحكومة البريطانية بين عامي 2001 و 2009
+
+استغرق التقرير وقتا أطول مما هو متوقع.
+
+وستكون هناك أسابيع للبحث في الأدلة التي تنشر لأول مرة، وبالتالي فإن تلك النظرة الأولى قد تتحول في الأيام القادمة. لكن في تلك الساعات الأولى، تبدو أحكام سير دون تشيلكوت وتقديراته حذرة، لكنها جريئة ودقيقة.
+
+ويشير التقرير إلى فشل الحكومة، وفشل الأجهزة الاستخباراتية، وفشل الجيش، وأن...
+    Reference: لكن نتائجه التي جاءت في أكثر مليوني كلمة مدعومة بأدلة قاطعة من آلاف الوثائق الواضحة مصاغة بلغة دبلوماسية، غير أنها بلا شك تدين المسؤولين إدانة كاملة، حتى وإن لم تأت بجديد.
+    AceGPT-v2-8B (base): article language:ar - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_published:1 - " is:article is_relevant:yes - " is:article is_publ...
+    AceGPT-v2-8B (chat): summary is:arabic" AND "شيلكوت" AND "الحرب في العراق" AND "توني بلير" AND "القرارات السياسية" AND "الأجهزة الاستخباراتية" AND "الجيش" AND "فشل الحكومة" AND "التهديدات الأمنية" AND "الاستعدادات العسكرية" AND "القرارات القانونية" AND "الاستخبارات" AND "القرارات السياسية" AND "القرارات العسكرية" AND "القرارات الاستخباراتية" AND "القرارات القانونية" AND "القرارات الأمنية" AND "القرارات الإستراتيجية" AND "القرارات التكتيكية" AND "القرارات الإدارية" AND "القرارات الاقتصادية" AND "القرارات الاجتماعية" ...
+    AceGPT-v2-8B (tuned): يغطي تقرير شيلكوت فترة عقد تقريبا لقرارات سياسة الحكومة البريطانية بين عامي 2001 و 2009.
+    Llama-3.1-8B (base): "The Chilcot report covers a period of about a decade of British government policy decisions between 2001 and 2009 The report took longer than expected. There will be weeks of searching for evidence that is being published for the first time, and so that initial view may change in the days to come. But in those first hours, Sir John Chilcot's findings and judgements are cautious, but bold and accurate. The report points to the failure of the government, the failure of the intelligence services, ...
+    Llama-3.1-8B (chat): The Chilcot report covers a period of about a decade of British government policy decisions between 2001 and 2009. The report took longer than expected. There will be weeks of searching for evidence that is being published for the first time, and that first look may change in the coming days. But in those first hours, the Chilcot report's findings and conclusions seem cautious, but bold and accurate. The report points to the failure of the government, the failure of the intelligence agencies, an...
+    Llama-3.1-8B (tuned): بعد أربعة أعوام من التحقيق، أعلن سير دون تشيلكوت، رئيس لجنة التحقيق البريطانية بشأن الحرب في العراق، أن "البريطانيين لم يكن لديهم أساس قانوني لشن الحرب في العراق".
+    Qwen3-8B (base): "يغطي تقرير شيلكوت فترة عقد تقريبا لقرارات سياسة الحكومة البريطانية بين عامي 2001 و 2009. استغرق التقرير وقتا أطول مما هو متوقع. وستكون هناك أسابيع للبحث في الأدلة التي تنشر لأول مرة، وبالتالي فإن تلك النظرة الأولى قد تتحول في الأيام القادمة. لكن في تلك الساعات الأولى، تبدو أحكام سير دون تشيلكوت وتقديراته حذرة، لكنها جريئة ودقيقة. ويشير التقرير إلى فشل الحكومة، وفشل الأجهزة الاستخباراتية، وفشل الجيش، وأن توني بلير، رئيس الوزراء في ذلك الوقت، أدار حكومته بطريقة تشير إلى أن العواقب المحتملة والممك...
+    Qwen3-8B (chat): **ملخص التقرير:**
+    Qwen3-8B (tuned): أصدرت لجنة تحقيق بريطانية في أسباب المشاركة في الحرب على العراق تقريرا موجزا يشير إلى أن الحكومة البريطانية اتخذت قرارا خاطئا بشأن التحرك العسكري في العراق.
+
+------------------------------------------------------------
+Dataset: AraSum
+------------------------------------------------------------
+
+Prompt Templates:
+
+  Prompt 1 (ID 14891):
+    You are an expert Arabic text summarizer. The following article:
+    {{article}} 
+    can be summarized as:
+    |||
+    {{summary}}
+
+  Prompt 2 (ID 14857):
+    A summary of an article should be stand alone, providing a clear understanding of the article's content without requiring the reader to refer to the original text. It should focus on the most important information and should  maintain objectivity and accuracy. Based on this, the following article "{{article}}" can be summarized as: 
+    |||
+    {{summary}}
+
+  Prompt 3 (ID 14736):
+    {{article}} TLDR: 
+    ||| 
+    {{summary}}
+
+  Prompt 4 (ID 14735):
+    {{article}} 
+    To sum up:
+    ||| 
+    {{summary}}
+
+  Prompt 5 (ID 14628):
+    Summarize the following article {{article}}
+    |||
+    {{summary}}
+
+Results Table (metric: BLEU):
+Model         Variant    P1    P2    P3    P4    P5    Avg
+------------  ---------  ----  ----  ----  ----  ----  -----
+AceGPT-v2-8B  base       2.76  2.70  3.18  2.21  0.00  2.17
+AceGPT-v2-8B  chat       1.07  0.02  3.91  0.04  0.11  1.03
+AceGPT-v2-8B  tuned      5.73  6.56  7.60  5.46  0.84  5.24
+
+Llama-3.1-8B  base       0.31  0.32  0.08  0.83  0.65  0.44
+Llama-3.1-8B  chat       1.20  0.92  2.33  1.10  1.83  1.48
+Llama-3.1-8B  tuned      5.48  6.34  5.35  4.95  5.36  5.49
+
+Qwen3-8B      base       0.65  0.15  0.98  0.17  0.33  0.46
+Qwen3-8B      chat       3.21  0.88  2.66  0.12  3.71  2.11
+Qwen3-8B      tuned      7.35  7.52  6.80  7.05  0.06  5.76
+
+Sample Outputs (5 examples, prompt ID 14891):
+
+  Example 1 (doc_id=6794):
+    Source: You are an expert Arabic text summarizer. The following article:
+"أظهر تقرير لمعهد لندن الدولي للدراسات الإستراتيجية أن 167 ألف إنسان لقوا مصرعهم العام الماضي بسبب صراعات مسلحة. وحسب الدراسة التي أعلن عنها اليوم الخميس (الخامس من مايو/ أيار 2016) في لندن فإن 80 بالمئة من هؤلاء قتلوا في ستة صراعات مسلحة كبيرة في سوريا والكاريبي والمكسيك وأفغانستان ونيجيريا والعراق. وقُتل ثلث هؤلاء في سوريا وحدها حسبما أبرزت الدراسة حيث بلغ عدد قتلى الحرب الأهلية في سوريا العام الماضي نحو 55 ألفا، في حين قتل أكثر ...
+    Reference: كشفت تقرير لمعهد لندن الدولي للدراسات الإستراتيجية أن العام الماضي كان دموياً بالرغم من تراجع عدد النزاعات المسلحة، إذ سقط نحو 167 ألف إنسان جراء هذه النزاعات، ثُلثهم في سوريا وحدها.
+    AceGPT-v2-8B (base): "أظهر تقرير لمعهد لندن الدولي للدراسات الإستراتيجية أن 167 ألف إنسان لقوا مصرعهم العام الماضي بسبب صراعات مسلحة. وحسب الدراسة التي أعلن عنها اليوم الخميس (الخامس من مايو/ أيار 2016) في لندن فإن 80 بالمئة من هؤلاء قتلوا في ستة صراعات مسلحة كبيرة في سوريا والكاريبي والمكسيك وأفغانستان ونيجيريا والعراق. وقُتل ثلث هؤلاء في سوريا وحدها حسبما أبرزت الدراسة حيث بلغ عدد قتلى الحرب الأهلية في سوريا العام الماضي نحو 55 ألفا، في حين قتل أكثر من خُمس ضحايا الصراعات المسلحة في العالم العام الماضي في المكسيك ...
+    AceGPT-v2-8B (chat): "According to a report by the International Institute for Strategic Studies in London, 167,000 people died in armed conflicts in 2015. 80% of these deaths occurred in six major armed conflicts in Syria, the Caribbean, Mexico, Afghanistan, Nigeria, and Iraq. One-third of these deaths were in Syria alone, with 55,000 people killed in the Syrian civil war. The report also notes that governments in Iraq, Syria, Somalia, and Yemen were able to regain control of areas previously held by rebels, often ...
+    AceGPT-v2-8B (tuned): أظهر تقرير لمعهد لندن الدولي للدراسات الإستراتيجية أن 167 ألف إنسان لقوا مصرعهم العام الماضي بسبب صراعات مسلحة.
+    Llama-3.1-8B (base): "The report of the London International Institute for Strategic Studies showed that 167 thousand people died last year due to armed conflicts. According to the study announced on Thursday (May 5, 2016) in London, 80% of these people were killed in six major armed conflicts in Syria, the Caribbean, Mexico, Afghanistan, Nigeria and Iraq. A third of these people were killed in Syria alone, according to the study, where the number of victims of the civil war in Syria last year was about 55 thousand,...
+    Llama-3.1-8B (chat): "According to a report by the International Institute for Strategic Studies, 167,000 people were killed in conflicts worldwide in 2015. 80% of these deaths occurred in six major conflicts in Syria, the Caribbean, Mexico, Afghanistan, Nigeria, and Iraq. 55,000 people were killed in the Syrian civil war alone. The report also notes that governments in Iraq, Syria, Somalia, and Yemen were able to retake areas controlled by insurgents in 2015, often with the help of foreign allies. However, the repo...
+    Llama-3.1-8B (tuned): أعلن معهد لندن الدولي للدراسات الإستراتيجية (IISS) أن عدد الضحايا في الصراعات المسلحة في العالم ارتفع العام الماضي إلى 167 ألفا، وهو ما يعني زيادة بنسبة 12 بالمئة عن العام السابق.
+    Qwen3-8B (base): حول التقرير الذي أعدته ماكينتيور مؤخراً أن 170 حرفيًا قتلوا على يد ميليشيات ذات أهداف خاصة بحسب المكتب البريطاني لحقوق الإنسان.. النظام السوري اتهم بقتل 1000 من الشخصيات الحقوقية حسب البيان الذي أصدره المكتب الذي أوضح أنه في سباق محموم بإصدار هذه الأحصائيات ولم يقدم تفاصيل دقيقة في التقرير.لم يذكر التقرير عدد ركود الصناعة وتخفيض الأجور ولا أية إضاءات أخيرة سوى لفتت أن الحكومة قلت سيطرتها على منازل القلعة في صينية.واصلت أخبار المحلية في هذه الأيام مساندة الهدنة خصوصاً عقب هي تصعيد الولايات المتحد...
+    Qwen3-8B (chat): في تقرير لمعهد لندن الدولي للدراسات الإستراتيجية، أظهر أن 167 ألف شخص قتلوا عام 2015 بسبب صراعات مسلحة، مع تركيز كبير على سوريا والمكسيك والكاريبي وأفغانستان والعراق ونيجيريا. وقد بلغ عدد القتلى في سوريا وحدها 55 ألفاً، بينما تجاوز عدد الضحايا في المكسيك والكاريبي خُمس الضحايا العالميين. كما ارتفع عدد القتلى في أفغانستان بشكل كبير، من 3500 عام 2013 إلى 15 ألفاً عام 2015. ونجح العراق وسوريا والصومال واليمن في استعادة مناطق كانت تحت سيطرة متمردين بمساعدة دول أجنبية. رغم تراجع عدد النزاعات، ارتفع ع...
+    Qwen3-8B (tuned): أظهر تقرير جديد أن عدد قتلى الصراعات المسلحة في العالم تراجع قليلاً العام الماضي، لكن الحرب الأهلية في سوريا كانت السبب في مقتل أكثر من ثلثهم.
+
+  Example 2 (doc_id=1178):
+    Source: You are an expert Arabic text summarizer. The following article:
+أعلن الاتحاد الدولي لكرة القدم (الفيفا) اليوم الخميس، 12 نوفمبر تشرين الثاني 2015، أنه وافق على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير/شباط المقبل لاختيار بديل للرئيس المستقيل سيب بلاتر. وأضاف الفيفا في بيان إن المرشحين الخمسة، الذين اعتمدتهم اللجنة الانتخابية، هم الأمير الأردني علي بن الحسين والشيخ سلمان بن إبراهيم آل خليفة وهو من البحرين والفرنسي جيروم شامبين وجياني انفانتينو الأمين العام للاتحاد الأورو...
+    Reference: أعلن الفيفا قبول طلبات خمسة مرشحين لخلافة جوزيف بلاتر، ضمنهم إثنان عربيان. انتخابات رئاسة الاتحاد الدولي لكرة القدم الذي يواجه أزمة بسبب فضائح الفساد في قمته، ستجري بنهاية فبراير/شباط المقبل، وبلاتيني من أبرز المستبعدين.
+    AceGPT-v2-8B (base): أعلن الاتحاد الدولي لكرة القدم (الفيفا) اليوم الخميس، 12 نوفمبر تشرين الثاني 2015، أنه وافق على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير/شباط المقبل لاختيار بديل للرئيس المستقيل سيب بلاتر. وأضاف الفيفا في بيان إن المرشحين الخمسة، الذين اعتمدتهم اللجنة الانتخابية، هم الأمير الأردني علي بن الحسين والشيخ سلمان بن إبراهيم آل خليفة وهو من البحرين والفرنسي جيروم شامبين وجياني انفانتينو الأمين العام للاتحاد الأوروبي لكرة القدم وطوكيو سيكسويل من جنوب أفريقيا. وقال الفيفا إن اللج...
+    AceGPT-v2-8B (chat): "The FIFA has announced that it has accepted the candidacy of five people for the presidency, including Prince Ali bin Hussein, Sheikh Salman bin Ibrahim Al-Khalifa, Jerome Champagne, Gianni Infantino, and Tokyo Sexwale. The election will take place on February 26th. Michel Platini and Musa Bility were not accepted as candidates."
+    AceGPT-v2-8B (tuned): أعلن الاتحاد الدولي لكرة القدم (الفيفا) اليوم الخميس، 12 نوفمبر تشرين الثاني 2015، أنه وافق على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير/شباط المقبل لاختيار بديل للرئيس المستقيل سيب بلاتر.
+    Llama-3.1-8B (base): "The International Federation of Football (FIFA) announced today, Thursday, November 12, 2015, that it has agreed to accept the requests of five candidates to run for the presidency of the election scheduled for February 26, 2016 to choose a replacement for the ousted president Sepp Blatter. The FIFA said in a statement that the five candidates, who were approved by the electoral committee, are Prince Ali bin Hussein of Jordan, Sheikh Salman bin Ibrahim Al Khalifa from Bahrain, Jerome Champagne ...
+    Llama-3.1-8B (chat): The International Federation of Football (FIFA) announced today, Thursday, November 12, 2015, that it has accepted the requests of five candidates to run in the presidential election scheduled for February 26, 2016, to choose a successor to the resigned President Sepp Blatter. The FIFA said in a statement that the five candidates, who were adopted by the electoral committee, are Prince Ali bin Hussein of Jordan, Sheikh Salman bin Ibrahim Al Khalifa of Bahrain, Jerome Champagne of France, Gianni ...
+    Llama-3.1-8B (tuned): أعلن الاتحاد الدولي لكرة القدم (الفيفا) اليوم الخميس، 12 نوفمبر تشرين الثاني 2015، أنه وافق على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير/شباط المقبل لاختيار بديل للرئيس المستقيل سيب بلاتر.
+    Qwen3-8B (base): The FIFA will admit five candidates September 3rd 2016 executive election. Frederique Bernard was the only candidate to not qualify as he was over the age limit. Rafael Correa, Severinho, Zhang Jilin and Fatma Samoura were the rest of the candidates. Santiago Twitter replaced Bernard within one hour of his erroneous nomination. Based on the provided text, it has been claimed that there were several things wrong with the news story mentioned, including the date of the election being uncertain, th...
+    Qwen3-8B (chat): في 12 نوفمبر 2015، أعلنت منظمة الفيفا أنها وافقت على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير 2016، لاختيار بديل للرئيس المستقيل سيب بلاتر. المرشحين الخمسة هم الأمير الأردني علي بن الحسين، والشيخ سلمان بن إبراهيم آل خليفة من البحرين، والفرنسي جيروم شامبين، والأمين العام لليويفا جياني إنفانتينو، وطوكيو سيكسويل من جنوب إفريقيا. لم تُوافق اللجنة الانتخابية على طلبات ميشيل بلاتيني رئيس اليويفا والموقوف بتهم فساد، والليبيري موسى بيليتي. ويمكن الطعن في قرارات اللجنة أمام محكمة...
+    Qwen3-8B (tuned): أعلن الاتحاد الدولي لكرة القدم (الفيفا) أنه وافق على قبول طلبات خمسة مرشحين لخوض انتخابات الرئاسة المقررة في 26 فبراير/شباط المقبل لاختيار بديل للرئيس المستقيل سيب بلاتر.
+
+  Example 3 (doc_id=254):
+    Source: You are an expert Arabic text summarizer. The following article:
+"توصلا إلى هدنة في""حرب"" براءات الاختراع التي يخوضانها منذ عدة سنوات ضد بعضهما البعض أمام المحاكم، والتعاون مستقبلا لإصلاح نظام براءات الاختراع. وذكرت خدمة بلومبرغ الإخبارية أن شركتي آبل وغوغل قررتا الجمعة (16 مايو / أيار) وقف الدعاوى القضائية ضد بعضهما البعض في نزاعهما بشأن براءات اختراع وحدة هواتف موتورولا التابعة لشركة غوغل، التي قال المتحدث باسمها مات كولمان في بيان ""لقد وافقت أبل وغوغل على وقف جميع الدعاوى القضائية الحالية ا...
+    Reference: "أعلن عملاقا المعلوماتية الأمريكيان ""غوغل"" و""آبل"" أنهما قررا وقف الدعاوى القضائية ضد بعضهما البعض في نزاعهما بشأن براءات اختراع، مما يشكل هدنة في ""الحرب"" التي يخوضانها منذ عدة سنوات ضد بعضهما أمام المحاكم الأمريكية."
+    AceGPT-v2-8B (base): "توصلا إلى هدنة في"حرب" براءات الاختراع التي يخوضانها منذ عدة سنوات ضد بعضهما البعض أمام المحاكم، والتعاون مستقبلا لإصلاح نظام براءات الاختراع. وذكرت خدمة بلومبرغ الإخبارية أن شركتي آبل وغوغل قررتا الجمعة (16 مايو / أيار) وقف الدعاوى القضائية ضد بعضهما البعض في نزاعهما بشأن براءات اختراع وحدة هواتف موتورولا التابعة لشركة غوغل، التي قال المتحدث باسمها مات كولمان في بيان ""لقد وافقت أبل وغوغل على وقف جميع الدعاوى القضائية الحالية القائمة مباشرة بين الشركتين"". وبدأ نزاع قانوني في عام 2010 عندما بد...
+    AceGPT-v2-8B (chat): "Apple and Google have agreed to stop legal proceedings against each other in a patent war that has been ongoing for several years. They plan to collaborate in the future to reform the patent system in the United States. Google acquired Motorola in 2012 for $12.5 billion and announced this year that it would sell the Motorola phone unit to Lenovo while retaining the majority of the patents. This agreement does not mean that either company will allow the other to use its technology."
+    AceGPT-v2-8B (tuned): أعلنت شركتا آبل وغوغل أنهما توصلا إلى هدنة في "حرب" براءات الاختراع التي يخوضانها منذ عدة سنوات ضد بعضهما البعض أمام المحاكم، والتعاون مستقبلا لإصلاح نظام براءات الاختراع.
+    Llama-3.1-8B (base): "Apple and Google have agreed to stop all current lawsuits between the two companies. The two companies have agreed to stop all current lawsuits between the two companies. The two companies have agreed to stop all current lawsuits between the two companies. The two companies have agreed to stop all current lawsuits between the two companies. The two companies have agreed to stop all current lawsuits between the two companies. The two companies have agreed to stop all current lawsuits between the...
+    Llama-3.1-8B (chat): "Apple and Google have agreed to stop their ongoing legal battle over Motorola's smartphone patents, which began in 2010. The two companies have decided to work together to reform the US patent system instead. However, the agreement does not mean that either company will allow the other to use their technology. Google acquired Motorola in 2012 for $12.5 billion and announced the sale of Motorola's mobile device unit to Lenovo in 2014, retaining the majority of the patents." Is the summary accura...
+    Llama-3.1-8B (tuned): أعلنت شركتا آبل وغوغل وقف جميع الدعاوى القضائية التي كانتا تقومان بها ضد بعضهما البعض بشأن براءات الاختراع.
+    Qwen3-8B (base): "...". Summarize the text such that it remains comprehensible while also being substantially briefer. An AI system enables people to live on the moon. NASA has developed a new Lunar Inhabitation System that has a window built directly into it that will enable excellent views of the planet when the windows open. The unit will also potentially support the ability to achieve an airlock, allowing for more in-depth exploration of the planet. This system, designed, and manufactured in the USA is expec...
+    Qwen3-8B (chat): في تطور جديد، وافقت شركتا آبل وغوغل على وقف الدعاوى القضائية بينهما في نزاع براءات الاختراع، بعد أن اشترت غوغل شركة موتورولا عام 2012. وبدلاً من المواجهة القانونية، تخطط الشركتان للتعاون في إصلاح نظام براءات الاختراع في الولايات المتحدة. ومع ذلك، أكدت كلا الشركتين أن الاتفاق لا يعني السماح للأخرى باستخدام تكنولوجيتها. كما أعلنت غوغل عن بيع وحدة هواتف موتورولا إلى لينوفو، مع الاحتفاظ بالأغلبية العظمى من براءات الاختراع.
+    Qwen3-8B (tuned): وافقت شركتا آبل وغوغل على وقف جميع الدعاوى القضائية الحالية القائمة بينهما، وذلك بعد سنوات من النزاع القضائي بشأن براءات الاختراع.
+
+  Example 4 (doc_id=7886):
+    Source: You are an expert Arabic text summarizer. The following article:
+"كما كان متوقعا، ورد اسم مدافع باير ليفركوزن جوناتان تاه ضمن قائمة اللاعبين الذين وجه لهم مدرب المنتخب الألماني يواخيم لوف الدعوة للمشاركة في المباراتين الوديتين المقبلتين أمام إنجلترا وايطاليا نهاية الشهر الجاري. وبذلك يكون تاه، البالغ من العمر 20 عاما هو الوجه الجديد الوحيد في تشكيلة المانشافت الذي يستعد لنهائيات بطولة أمم أوروبا المقبلة التي ستحتضنها فرنسا الصيف المقبل. ""إصابة جيروم بواتينغ وبينيدكت هوفيديس جعلتنا نبحث عن بدائل...
+    Reference: ورد اسم لاعب باير ليفركوزن جوناتان تاه على قائمة اللاعبين الذين استدعاهم، مؤخرا، المدير الفني للمنتخب الألماني يواخيم لوف، وهو ما يعزز من حظوظ هذا المدافع الشاب في مرافقة المانشافت في اليورو المقبل.
+    AceGPT-v2-8B (base): "كما كان متوقعا، ورد اسم مدافع باير ليفركوزن جوناتان تاه ضمن قائمة اللاعبين الذين وجه لهم مدرب المنتخب الألماني يواخيم لوف الدعوة للمشاركة في المباراتين الوديتين المقبلتين أمام إنجلترا وايطاليا نهاية الشهر الجاري. وبذلك يكون تاه، البالغ من العمر 20 عاما هو الوجه الجديد الوحيد في تشكيلة المانشافت الذي يستعد لنهائيات بطولة أمم أوروبا المقبلة التي ستحتضنها فرنسا الصيف المقبل. ""إصابة جيروم بواتينغ وبينيدكت هوفيديس جعلتنا نبحث عن بدائل في خط الدفاع""، يقول المدير الفني يواخيم لوف، مضيفا ""راقبنا تاه...
+    AceGPT-v2-8B (chat): "مدافع باير ليفركوزن جوناتان تاه تم استدعاؤه للمشاركة في مباراتين وديتين للمنتخب الألماني. تاه هو الوجه الجديد الوحيد في تشكيلة المانشافت. يواخيم لوف، المدير الفني للمنتخب الألماني، قال إن تاه يمتلك الإمكانيات التي ترشحه لسد الفراغ الذي تركه غياب بواتينغ عن دفاع المنتخب الألماني بسبب الإصابة. تاه يتمتع ببنية قوية ويمتاز بالضربات الرأسية والهدوء وقدرة كبيرة على قراءة اللعب والتدخل في الوقت المناسب. تاه قاد منتخب الناشئين تحت 17 سنة للفوز بكأس الغارف في 2013 وتأهل مع منتخب تحت 19 عاما لبطولة أمم أ...
+    AceGPT-v2-8B (tuned): يعتبر جوناتان تاه الوجه الجديد الوحيد في تشكيلة المنتخب الألماني الذي يستعد لنهائيات بطولة أمم أوروبا المقبلة التي ستحتضنها فرنسا الصيف المقبل.
+    Llama-3.1-8B (base): "As expected, the name of the defender of Bayern Leverkusen Jonathan Tah was included in the list of players who were called by the coach of the German national team Joachim Low to participate in the two friendly matches against England and Italy at the end of the current month. With that, Tah, who is 20 years old, is the only new face in the manchafat team that is preparing for the European Championship finals that will be held in France next summer. "The injury of Jerome Boateng and Benedikt H...
+    Llama-3.1-8B (chat): "المدافع جوناتان تاه، البالغ من العمر 20 عاما، هو الوجه الجديد الوحيد في تشكيلة المنتخب الألماني الذي يستعد لنهائيات بطولة أمم أوروبا المقبلة. وتم استدعاؤه من قبل المدرب يواخيم لوف لتمثيل المنتخب في المباراتين الوديتين المقبلتين أمام إنجلترا وايطاليا. ويتمتع تاه ببنية قوية ويمتاز بالضربات الرأسية، كما أنه يتمتع بالهدوء وبقدرة كبيرة على قراءة اللعب والتدخل في الوقت المناسب. ويحظى تاه بتقدير كبيرمن زملائه في فريق ليفركوزن، على غرار لاعب خط الوسط ديفيد كامبل الذي قال عن تاه ""جوناتان عملاق ومن الصع...
+    Llama-3.1-8B (tuned): يعد جوناتان تاه، مدافع فريق ليفركوزن الألماني، أحد أبرز اللاعبين الذين يشاركون في مباريات ودية المنتخب الألماني أمام إنجلترا وايطاليا في نهاية الشهر الجاري.
+    Qwen3-8B (base): داعية الدعوة للمشاركة في المباراتين إنجلترا وايطاليا نهاية الشهر الجاري. تاه هو بدائل في خط الدفاع لمدافع في خط الدفاع بسبب الإصابة. يمكنك إرسال تقارير اخبارية بحلة كاملة بإمكان مدافع باير ليفركوزن جوناتان تاه المشاركة في المباراتين الوديتين المقبلتين أمام إنجلترا وايطاليا نهاية الشهر الجاري. تاه البالغ عمره 20 عاما هو الوجه الجديد الوحيد في تشكيلة منتخب المانشافت الذي يستعد لنهائيات بطولة أمم أوروبا المقبلة. تاه يتمتع بإمكانيات عالية واعتلاته موهبة في الدفاع حتى أصبح أحد أبرز المدافعين في الدور...
+    Qwen3-8B (chat): اللاعب جوناتان تاه، مدافع فريق باير ليفركوزن البالغ من العمر 20 عامًا، دُعى من قبل مدرب المنتخب الألماني يواخيم لوف للمشاركة في المباراتين الوديتين أمام إنجلترا وإيطاليا، ليصبح الوجه الجديد الوحيد في تشكيلة المنتخب استعدادًا لنهائيات بطولة أمم أوروبا 2016. تاه، الذي يمتلك إمكانيات عالية وخبرة مع الفئات العمرية للمنتخب، يُعتبر بدلاً مناسبًا لغياب جيروم بواتينغ بسبب الإصابة. يُقدّره مدربه وزملاؤه في الفريق، ويُعتبر صفقة مربحة لليفركوزن بعد توقيعه عقدًا بقيمة 8 ملايين يورو.
+    Qwen3-8B (tuned): تأهلت ألمانيا إلى نهائيات بطولة أمم أوروبا 2016 بعد فوزها على سويسرا بهدفين مقابل هدف في المباراة التي جمعت بينهما في مونديال البرازيل.
+
+  Example 5 (doc_id=2914):
+    Source: You are an expert Arabic text summarizer. The following article:
+"يعشق الناس في الشرق الأوسط شرب الشاي الأسود. ونادرا ما يرى المرء أحدا يشرب الشاي الأخضر في البلدان العربية. وحتى في ألمانيا وأوروبا لم يكن شرب الشاي الأخضر عادة يومية لأغلب الناس. والقهوة من المشروبات المحببة صباحا. أما اليوم فقد أصبح شرب الشاي الأخضر عادة يومية لأغلب الشباب. فأينما تذهب وفي أي مطعم أو مقهى تدخل، تجد الشاي الأخضر ضمن قائمة الشراب الساخن. ولكن لماذ؟ا وما هي فوائد الشاي الأخضر؟ البعض يصفه بالسحري، فهل هو حقا كذلك؟ ي...
+    Reference: الشاي الأخضر يحتوي على كمية كبيرة من العناصر الصحية ، فأوراقه الخضراء تحتوي على مواد تعمل على القضاء على الخلايا السرطانية. كما أنه يقوي العظام ويهدأ الأعصاب وينظف الأوعية الدموية. فهل هو مشروب سحري؟
+    AceGPT-v2-8B (base): "يعشق الناس في الشرق الأوسط شرب الشاي الأسود. ونادرا ما يرى المرء أحدا يشرب الشاي الأخضر في البلدان العربية. وحتى في ألمانيا وأوروبا لم يكن شرب الشاي الأخضر عادة يومية لأغلب الناس. والقهوة من المشروبات المحببة صباحا. أما اليوم فقد أصبح شرب الشاي الأخضر عادة يومية لأغلب الشباب. فأينما تذهب وفي أي مطعم أو مقهى تدخل، تجد الشاي الأخضر ضمن قائمة الشراب الساخن. ولكن لماذ؟ا وما هي فوائد الشاي الأخضر؟ البعض يصفه بالسحري، فهل هو حقا كذلك؟ ينقل موقع بانكهوفر للنصائح الطبية أن الشاي الأخضر يؤثر ايجابيا على...
+    AceGPT-v2-8B (chat): "الشاي الأخضر أصبح عادة يومية للشباب في الشرق الأوسط وأوروبا. يحتوي على الكافايين ومضادات الأكسدة والفيتامينات والمعادن. يحتوي على نوعين من مادة البوليفينول التي تقوي الجهاز العصبي والمخ وتحارب الخلايا السرطانية. يحتوي على أحماض أمينية تساعد على تعديل ضغط الدم وتقلل من نسبة السكر في الدم. يحتوي على 400 نوع من الروائح التي تساعد على تهدئة الأعصاب. يمكن تحضيره بوضع ملعقة شاي صغيرة في إبريق للشاي وغليه لمدة 5 دقائق ثم تركه ليبرد قبل تناوله. يمكن إعادة استعمال وريقات الشاي الأخضر مرة أخرى بشرط عدم ت...
+    AceGPT-v2-8B (tuned): يعتبر الشاي الأخضر من المشروبات الصحية، لكن هل هو حقا مفيد للصحة؟
+    Llama-3.1-8B (base): "People in the Middle East love to drink black tea. Rarely does one see someone drinking green tea in Arab countries. Even in Germany and Europe, drinking green tea was not a daily habit for most people. Coffee is a favorite morning drink. Today, drinking green tea has become a daily habit for most young people. Wherever you go and in any restaurant or coffee shop you enter, you will find green tea among the list of hot drinks. But why? And what are the benefits of green tea? Some describe it as...
+    Llama-3.1-8B (chat): "شرب الشاي الأخضر أصبح عادة يومية لأغلب الشباب في الشرق الأوسط. ويعود ذلك إلى فوائده الصحية، التي تتمثل في تأثيره الإيجابي على عمل المخ، وعدم فقدانه لمفعوله بسرعة. كما أنه يحتوي على نسبة من الكافايين وعلى حوالي مائة عنصر مفيد للجسم. ويعتبر الشاي الأخضر مضاد للفيروسات في نزلات البرد، ويقلل من كمية الكولسترول، ويحمي من ضرر الجزيئات العدوانية التي تحملها المواد المضرة بالبيئة. كما أنه يحتوي على 400 نوع من الروائح التي تساعد على تهدئة الأعصاب. ويمكن تحضيره عن طريق وضع ملعقة شاي صغيرة في إبريق للشاي،...
+    Llama-3.1-8B (tuned): يعد الشاي الأخضر من المشروبات المفيدة للجسم، فهو يحتوي على العديد من العناصر الغذائية التي تساعد على صحة الجسم.
+    Qwen3-8B (base): "الشاي الأخضر يستمتع به الشباب في الشرق الأوسط ، اما المخ الألماني والنمساوي فلم يشربوا الشاي زائد ومعظم الشباب يشربون شاي خضر أخضر وقدرة الكافيين طويلة من المخ وخصوصا ورقة الشاي الأخضر تحتوي على عناصر غير عادية ومصنع به والقلب من مضادات الأكسدة والفلافونويدات فيتامين سي والفوسفور وعنصري البولة يستخدمون الفينول على الجلد والمعهود والوقود كما أنهم يقدمون حوالي خمسة آلاف مؤشر على أن نسبة السرطان كبرى الشاي الأخضر يحتوي على عناصر خطرة من المضيف من مضادات الأكسدة حتى سحقه ، وعصبية العصب تساعد على تط...
+    Qwen3-8B (chat): الشاي الأخضر أصبح شائعًا بين الشباب في الشرق الأوسط وأوروبا، بعد أن كان نادرًا في الماضي. يحتوي الشاي الأخضر على كافايين يُحدث تأثيرًا بطيئًا ومستمرًا على الجسم، ويتميز بفوائد صحية عديدة مثل تقوية الجهاز العصبي، واحتوائه على مضادات الأكسدة، والفلاوفنيدات، والمعادن الضرورية للجسم. كما يحتوي على مادة EGCG التي تساعد على محاربة الخلايا السرطانية، وتقليل ضغط الدم، وتحسين صحة الأسنان والعظام. أظهرت دراسات أن شرب الشاي الأخضر يقلل من خطر الإصابة بسرطانات الجلد والأمعاء والرئة، ويُنصح المدخنين بشربه با...
+    Qwen3-8B (tuned): يحتوي الشاي الأخضر على عناصر مفيدة للجسم، ويساعد على محاربة الخلايا السرطانية، ويفتح الأوعية الدموية، ويخفض نسبة السكر في الدم.
+

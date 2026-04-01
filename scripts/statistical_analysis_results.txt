@@ -1,0 +1,565 @@
+STATISTICAL ANALYSIS OF EVALUATION RESULTS
+Models: AceGPT-v2, LLaMA-3.1, Qwen3
+Tasks: MCQ, NLI, Dialect, Sarcasm, Translation, Summarization
+
+--- Data Availability Check ---
+  AceGPT-v2 base: 60/60 scores loaded
+  AceGPT-v2 chat: 60/60 scores loaded
+  AceGPT-v2 tuned: 60/60 scores loaded
+  LLaMA-3.1 base: 60/60 scores loaded
+  LLaMA-3.1 chat: 60/60 scores loaded
+  LLaMA-3.1 tuned: 60/60 scores loaded
+  Qwen3 base: 60/60 scores loaded
+  Qwen3 chat: 60/60 scores loaded
+  Qwen3 tuned: 60/60 scores loaded
+
+====================================================================================================
+ANALYSIS 1: STATISTICAL SIGNIFICANCE OF TUNING GAINS
+====================================================================================================
+
+For each model x task, paired Wilcoxon signed-rank tests compare (a) base vs tuned and
+(b) chat/instruct vs tuned across the 5 prompt scores. Cohen's d measures effect size.
+Significance: * p<0.05, ** p<0.01, *** p<0.001
+
+
+--- Intra-dataset (primary) ---
+Model          Task            Base (mean+/-std)  Chat (mean+/-std)  Tuned (mean+/-std) Base->Tuned p    d        Chat->Tuned p    d       
+-------------------------------------------------------------------------------------------------------------------------------------------
+AceGPT-v2      MCQ             42.35+/-8.99       46.01+/-12.32      59.45+/-2.57       0.0625           2.31     0.0625           1.35    
+AceGPT-v2      NLI             52.82+/-3.81       66.52+/-10.28      94.34+/-0.42       0.0625           13.71    0.0625           3.42    
+AceGPT-v2      Dialect         17.68+/-2.23       19.89+/-9.83       90.60+/-0.11       0.0625           41.36    0.0625           9.10    
+AceGPT-v2      Sarcasm         72.63+/-0.01       71.01+/-3.25       78.18+/-0.31       0.0625           22.83    0.0625           2.78    
+AceGPT-v2      Translation     2.85+/-1.75        12.12+/-0.67       16.04+/-0.14       0.0625           9.52     0.0625           7.21    
+AceGPT-v2      Summarization   0.15+/-0.14        0.17+/-0.24        9.82+/-1.51        0.0625           8.07     0.0625           7.98    
+LLaMA-3.1      MCQ             39.95+/-7.80       44.03+/-10.85      55.37+/-2.30       0.0625           2.40     0.0625           1.29    
+LLaMA-3.1      NLI             50.68+/-0.57       62.16+/-7.93       91.08+/-0.61       0.0625           60.77    0.0625           4.60    
+LLaMA-3.1      Dialect         15.52+/-2.45       16.56+/-4.49       88.96+/-0.31       0.0625           37.61    0.0625           20.36   
+LLaMA-3.1      Sarcasm         71.98+/-1.24       66.81+/-11.62      77.95+/-1.22       0.0625           4.34     0.0625           1.21    
+LLaMA-3.1      Translation     6.60+/-2.13        7.81+/-2.36        14.03+/-0.26       0.0625           4.37     0.0625           3.31    
+LLaMA-3.1      Summarization   0.42+/-0.30        0.49+/-0.35        6.37+/-1.15        0.0625           6.33     0.0625           6.19    
+Qwen3          MCQ             51.30+/-12.90      49.47+/-13.46      66.04+/-3.36       0.0625           1.40     0.0625           1.51    
+Qwen3          NLI             76.00+/-14.98      81.20+/-1.84       93.96+/-0.70       0.0625           1.51     0.0625           8.20    
+Qwen3          Dialect         15.39+/-2.70       14.66+/-2.34       90.09+/-0.31       0.0625           34.75    0.0625           40.37   
+Qwen3          Sarcasm         44.66+/-17.75      50.45+/-20.02      77.45+/-0.62       0.0625           2.34     0.0625           1.71    
+Qwen3          Translation     8.77+/-0.85        8.60+/-4.29        14.12+/-0.48       0.0625           6.94     0.0625           1.62    
+Qwen3          Summarization   0.32+/-0.18        0.41+/-0.42        8.78+/-1.43        0.0625           7.45     0.0625           7.12    
+
+
+--- Intra-task (secondary) ---
+Model          Task            Base (mean+/-std)  Chat (mean+/-std)  Tuned (mean+/-std) Base->Tuned p    d        Chat->Tuned p    d       
+-------------------------------------------------------------------------------------------------------------------------------------------
+AceGPT-v2      MCQ             42.02+/-8.12       57.00+/-16.07      58.13+/-6.49       0.0625           1.96     0.6250           0.08    
+AceGPT-v2      NLI             50.14+/-1.93       52.94+/-1.81       56.49+/-2.37       0.0625           2.63     0.0625           1.51    
+AceGPT-v2      Dialect         16.44+/-0.45       24.02+/-8.50       33.72+/-7.43       0.0625           2.94     0.3125           1.09    
+AceGPT-v2      Sarcasm         57.17+/-34.96      57.16+/-35.00      57.10+/-35.02      1.0000           -0.00    1.0000           -0.00   
+AceGPT-v2      Translation     10.96+/-3.34       15.78+/-6.50       12.79+/-1.89       0.0625           0.60     0.6250           -0.56   
+AceGPT-v2      Summarization   2.17+/-1.13        1.03+/-1.49        5.24+/-2.32        0.0625           1.50     0.0625           1.93    
+LLaMA-3.1      MCQ             44.67+/-9.56       49.00+/-13.42      52.71+/-8.68       0.0625           0.79     0.3125           0.29    
+LLaMA-3.1      NLI             52.37+/-0.73       54.08+/-1.57       55.21+/-2.02       0.1250           1.67     0.6250           0.56    
+LLaMA-3.1      Dialect         18.62+/-2.59       26.33+/-10.78      27.18+/-6.22       0.0625           1.61     0.8125           0.09    
+LLaMA-3.1      Sarcasm         57.43+/-34.53      60.03+/-31.76      57.07+/-34.93      0.6250           -0.01    0.5000           -0.08   
+LLaMA-3.1      Translation     10.85+/-5.53       11.91+/-5.37       9.89+/-1.16        0.6250           -0.21    0.6250           -0.46   
+LLaMA-3.1      Summarization   0.44+/-0.27        1.48+/-0.52        5.49+/-0.46        0.0625           12.08    0.0625           7.30    
+Qwen3          MCQ             62.60+/-11.49      60.44+/-15.84      69.09+/-4.97       0.0625           0.66     0.0625           0.66    
+Qwen3          NLI             62.09+/-7.70       64.36+/-3.47       55.69+/-2.41       0.1250           -1.00    0.0625           -2.60   
+Qwen3          Dialect         24.54+/-11.89      20.21+/-7.77       37.99+/-9.84       0.0625           1.10     0.0625           1.79    
+Qwen3          Sarcasm         57.41+/-34.66      59.20+/-32.19      57.26+/-35.09      0.7500           -0.00    0.7500           -0.05   
+Qwen3          Translation     9.73+/-5.24        13.02+/-6.42       9.86+/-1.33        1.0000           0.03     0.6250           -0.61   
+Qwen3          Summarization   0.46+/-0.32        2.11+/-1.38        5.76+/-2.86        0.1250           2.33     0.1250           1.45    
+
+
+====================================================================================================
+ANALYSIS 2: PROMPT SENSITIVITY (COEFFICIENT OF VARIATION)
+====================================================================================================
+
+CV = std/mean x 100 (%). Range = max - min across 5 prompts.
+Higher CV = more sensitive to prompt design.
+
+
+--- Intra-dataset (primary) ---
+Model          Variant    Task            Mean       Std        CV (%)     Min        Max        Range     
+-----------------------------------------------------------------------------------------------------------
+AceGPT-v2      base       MCQ             42.35      10.05      23.74      31.34      51.19      19.85     
+AceGPT-v2      base       NLI             52.82      4.26       8.06       50.00      60.20      10.20     
+AceGPT-v2      base       Dialect         17.68      2.49       14.09      14.47      21.23      6.76      
+AceGPT-v2      base       Sarcasm         72.63      0.01       0.02       72.60      72.63      0.03      
+AceGPT-v2      base       Translation     2.85       1.95       68.60      0.43       4.78       4.35      
+AceGPT-v2      base       Summarization   0.15       0.16       106.68     0.00       0.33       0.33      
+AceGPT-v2      chat       MCQ             46.01      13.77      29.94      29.60      57.99      28.39     
+AceGPT-v2      chat       NLI             66.52      11.50      17.29      50.00      80.40      30.40     
+AceGPT-v2      chat       Dialect         19.89      10.99      55.25      13.02      39.36      26.34     
+AceGPT-v2      chat       Sarcasm         71.01      3.64       5.12       64.50      72.63      8.13      
+AceGPT-v2      chat       Translation     12.12      0.75       6.21       11.01      12.95      1.94      
+AceGPT-v2      chat       Summarization   0.17       0.26       150.93     0.00       0.63       0.63      
+AceGPT-v2      tuned      MCQ             59.45      2.87       4.83       54.56      61.49      6.93      
+AceGPT-v2      tuned      NLI             94.34      0.47       0.50       93.70      95.00      1.30      
+AceGPT-v2      tuned      Dialect         90.60      0.12       0.14       90.45      90.79      0.34      
+AceGPT-v2      tuned      Sarcasm         78.18      0.34       0.44       77.73      78.63      0.90      
+AceGPT-v2      tuned      Translation     16.04      0.15       0.95       15.87      16.24      0.37      
+AceGPT-v2      tuned      Summarization   9.82       1.69       17.19      8.91       12.82      3.91      
+LLaMA-3.1      base       MCQ             39.95      8.72       21.82      29.60      48.74      19.15     
+LLaMA-3.1      base       NLI             50.68      0.64       1.27       50.00      51.60      1.60      
+LLaMA-3.1      base       Dialect         15.52      2.74       17.65      13.02      20.12      7.10      
+LLaMA-3.1      base       Sarcasm         71.98      1.39       1.93       69.50      72.63      3.13      
+LLaMA-3.1      base       Translation     6.60       2.38       36.15      3.42       8.74       5.32      
+LLaMA-3.1      base       Summarization   0.42       0.34       80.14      0.06       0.98       0.92      
+LLaMA-3.1      chat       MCQ             44.03      12.13      27.55      28.96      54.64      25.68     
+LLaMA-3.1      chat       NLI             62.16      8.86       14.26      50.60      73.40      22.80     
+LLaMA-3.1      chat       Dialect         16.56      5.02       30.30      13.02      25.36      12.34     
+LLaMA-3.1      chat       Sarcasm         66.81      13.00      19.45      43.57      72.63      29.07     
+LLaMA-3.1      chat       Translation     7.81       2.64       33.80      3.20       9.69       6.50      
+LLaMA-3.1      chat       Summarization   0.49       0.39       80.33      0.04       1.11       1.07      
+LLaMA-3.1      tuned      MCQ             55.37      2.57       4.64       51.13      57.25      6.12      
+LLaMA-3.1      tuned      NLI             91.08      0.69       0.75       90.30      91.90      1.60      
+LLaMA-3.1      tuned      Dialect         88.96      0.34       0.38       88.39      89.24      0.85      
+LLaMA-3.1      tuned      Sarcasm         77.95      1.37       1.75       75.60      79.07      3.47      
+LLaMA-3.1      tuned      Translation     14.03      0.29       2.06       13.66      14.35      0.68      
+LLaMA-3.1      tuned      Summarization   6.37       1.28       20.18      5.76       8.66       2.91      
+Qwen3          base       MCQ             51.30      14.43      28.12      34.21      63.50      29.29     
+Qwen3          base       NLI             76.00      16.75      22.04      50.00      90.30      40.30     
+Qwen3          base       Dialect         15.39      3.02       19.62      13.42      20.68      7.26      
+Qwen3          base       Sarcasm         44.66      19.85      44.44      27.37      72.63      45.27     
+Qwen3          base       Translation     8.77       0.95       10.87      7.46       9.91       2.46      
+Qwen3          base       Summarization   0.32       0.21       64.29      0.05       0.59       0.54      
+Qwen3          chat       MCQ             49.47      15.04      30.41      32.63      61.62      28.98     
+Qwen3          chat       NLI             81.20      2.06       2.53       79.00      83.30      4.30      
+Qwen3          chat       Dialect         14.66      2.62       17.87      13.01      19.30      6.29      
+Qwen3          chat       Sarcasm         50.45      22.38      44.37      27.37      72.83      45.47     
+Qwen3          chat       Translation     8.60       4.80       55.82      0.02       10.97      10.95     
+Qwen3          chat       Summarization   0.41       0.47       115.27     0.07       1.23       1.16      
+Qwen3          tuned      MCQ             66.04      3.76       5.69       59.58      68.57      8.98      
+Qwen3          tuned      NLI             93.96      0.78       0.83       92.80      95.00      2.20      
+Qwen3          tuned      Dialect         90.09      0.34       0.38       89.57      90.49      0.92      
+Qwen3          tuned      Sarcasm         77.45      0.69       0.89       76.23      77.90      1.67      
+Qwen3          tuned      Translation     14.12      0.53       3.77       13.52      14.90      1.39      
+Qwen3          tuned      Summarization   8.78       1.59       18.15      8.05       11.63      3.59      
+
+
+--- Intra-task (secondary) ---
+Model          Variant    Task            Mean       Std        CV (%)     Min        Max        Range     
+-----------------------------------------------------------------------------------------------------------
+AceGPT-v2      base       MCQ             42.02      9.08       21.61      26.00      47.56      21.56     
+AceGPT-v2      base       NLI             50.14      2.16       4.30       47.87      52.13      4.27      
+AceGPT-v2      base       Dialect         16.44      0.50       3.07       16.13      17.30      1.17      
+AceGPT-v2      base       Sarcasm         57.17      39.08      68.36      14.29      85.71      71.43     
+AceGPT-v2      base       Translation     10.96      3.74       34.10      4.74       14.62      9.88      
+AceGPT-v2      base       Summarization   2.17       1.26       58.08      0.00       3.18       3.18      
+AceGPT-v2      chat       MCQ             57.00      17.96      31.52      25.11      67.11      42.00     
+AceGPT-v2      chat       NLI             52.94      2.02       3.82       50.24      55.45      5.21      
+AceGPT-v2      chat       Dialect         24.02      9.50       39.57      16.13      39.39      23.26     
+AceGPT-v2      chat       Sarcasm         57.16      39.14      68.47      14.29      85.79      71.50     
+AceGPT-v2      chat       Translation     15.78      7.27       46.05      2.79       19.26      16.47     
+AceGPT-v2      chat       Summarization   1.03       1.67       162.39     0.02       3.91       3.88      
+AceGPT-v2      tuned      MCQ             58.13      7.26       12.48      45.33      63.22      17.89     
+AceGPT-v2      tuned      NLI             56.49      2.65       4.70       52.61      59.95      7.35      
+AceGPT-v2      tuned      Dialect         33.72      8.31       24.64      28.18      48.11      19.93     
+AceGPT-v2      tuned      Sarcasm         57.10      39.15      68.57      14.14      86.07      71.93     
+AceGPT-v2      tuned      Translation     12.79      2.11       16.51      9.17       14.65      5.47      
+AceGPT-v2      tuned      Summarization   5.24       2.60       49.58      0.84       7.60       6.76      
+LLaMA-3.1      base       MCQ             44.67      10.69      23.94      26.22      52.89      26.67     
+LLaMA-3.1      base       NLI             52.37      0.82       1.57       51.66      53.79      2.13      
+LLaMA-3.1      base       Dialect         18.62      2.90       15.55      16.13      23.06      6.93      
+LLaMA-3.1      base       Sarcasm         57.43      38.61      67.22      14.29      85.71      71.43     
+LLaMA-3.1      base       Translation     10.85      6.18       56.96      0.17       14.56      14.39     
+LLaMA-3.1      base       Summarization   0.44       0.30       68.30      0.08       0.83       0.75      
+LLaMA-3.1      chat       MCQ             49.00      15.00      30.61      22.56      58.67      36.11     
+LLaMA-3.1      chat       NLI             54.08      1.75       3.24       52.37      56.40      4.03      
+LLaMA-3.1      chat       Dialect         26.33      12.05      45.77      16.13      44.87      28.73     
+LLaMA-3.1      chat       Sarcasm         60.03      35.51      59.16      14.29      85.71      71.43     
+LLaMA-3.1      chat       Translation     11.91      6.00       50.40      1.20       15.07      13.87     
+LLaMA-3.1      chat       Summarization   1.48       0.59       39.77      0.92       2.33       1.41      
+LLaMA-3.1      tuned      MCQ             52.71      9.70       18.40      35.44      58.56      23.11     
+LLaMA-3.1      tuned      NLI             55.21      2.26       4.09       52.13      58.06      5.92      
+LLaMA-3.1      tuned      Dialect         27.18      6.95       25.57      19.50      37.98      18.48     
+LLaMA-3.1      tuned      Sarcasm         57.07      39.06      68.44      14.29      85.79      71.50     
+LLaMA-3.1      tuned      Translation     9.89       1.29       13.06      7.60       10.67      3.07      
+LLaMA-3.1      tuned      Summarization   5.49       0.51       9.30       4.95       6.34       1.39      
+Qwen3          base       MCQ             62.60      12.84      20.51      39.67      69.44      29.78     
+Qwen3          base       NLI             62.09      8.60       13.86      52.13      74.17      22.04     
+Qwen3          base       Dialect         24.54      13.29      54.16      16.13      47.84      31.71     
+Qwen3          base       Sarcasm         57.41      38.75      67.50      14.29      85.71      71.43     
+Qwen3          base       Translation     9.73       5.86       60.23      0.47       15.22      14.75     
+Qwen3          base       Summarization   0.46       0.36       78.27      0.15       0.98       0.83      
+Qwen3          chat       MCQ             60.44      17.71      29.31      28.89      69.67      40.78     
+Qwen3          chat       NLI             64.36      3.88       6.03       59.72      70.38      10.66     
+Qwen3          chat       Dialect         20.21      8.68       42.96      16.13      35.73      19.60     
+Qwen3          chat       Sarcasm         59.20      35.99      60.79      14.29      85.71      71.43     
+Qwen3          chat       Translation     13.02      7.17       55.12      0.20       16.71      16.50     
+Qwen3          chat       Summarization   2.11       1.55       73.13      0.12       3.71       3.59      
+Qwen3          tuned      MCQ             69.09      5.56       8.05       59.22      72.11      12.89     
+Qwen3          tuned      NLI             55.69      2.70       4.84       52.13      58.53      6.40      
+Qwen3          tuned      Dialect         37.99      11.00      28.96      21.93      51.74      29.81     
+Qwen3          tuned      Sarcasm         57.26      39.23      68.51      14.29      86.43      72.14     
+Qwen3          tuned      Translation     9.86       1.49       15.09      7.38       11.02      3.64      
+Qwen3          tuned      Summarization   5.76       3.19       55.50      0.06       7.52       7.45      
+
+
+--- Summary: Average CV by Variant ---
+Variant    Mean CV (%)     Median CV (%)   Max CV (%)      N    
+----------------------------------------------------------------
+base       35.75           23.84           106.68          36   
+chat       44.02           36.68           162.39          36   
+tuned      16.11           6.87            68.57           36   
+
+
+====================================================================================================
+ANALYSIS 3: INTRA-DATASET vs INTRA-TASK CORRELATION
+====================================================================================================
+
+For each model variant x task, correlate the 5 prompt scores on the primary dataset
+(intra-dataset) with the 5 prompt scores on the secondary dataset (intra-task).
+High correlation means prompts that work well intra-dataset also work well intra-task.
+
+Model          Variant    Task            Pearson r    Pearson p      Spearman rho Spearman p    
+-------------------------------------------------------------------------------------------------
+AceGPT-v2      base       MCQ             -0.25        0.6873         0.60         0.2848        
+AceGPT-v2      base       NLI             0.32         0.6007         -0.16        0.7995        
+AceGPT-v2      base       Dialect         -0.09        0.8807         -0.10        0.8696        
+AceGPT-v2      base       Sarcasm         -0.41        0.4950         -0.40        0.5101        
+AceGPT-v2      base       Translation     -0.28        0.6469         -0.10        0.8729        
+AceGPT-v2      base       Summarization   -0.47        0.4262         -0.10        0.8729        
+AceGPT-v2      chat       MCQ             -0.26        0.6687         0.20         0.7471        
+AceGPT-v2      chat       NLI             -0.33        0.5841         -0.60        0.2848        
+AceGPT-v2      chat       Dialect         -0.03        0.9566         -0.05        0.9347        
+AceGPT-v2      chat       Sarcasm         0.61         0.2722         0.56         0.3273        
+AceGPT-v2      chat       Translation     0.26         0.6734         -0.10        0.8729        
+AceGPT-v2      chat       Summarization   0.09         0.8872         0.70         0.1881        
+AceGPT-v2      tuned      MCQ             -0.27        0.6650         0.10         0.8729        
+AceGPT-v2      tuned      NLI             0.32         0.6023         0.60         0.2848        
+AceGPT-v2      tuned      Dialect         -0.05        0.9309         0.00         1.0000        
+AceGPT-v2      tuned      Sarcasm         -0.76        0.1352         -0.80        0.1041        
+AceGPT-v2      tuned      Translation     -0.42        0.4775         -0.60        0.2848        
+AceGPT-v2      tuned      Summarization   -0.92        0.0252 *       -0.30        0.6238        
+LLaMA-3.1      base       MCQ             -0.37        0.5348         -0.10        0.8729        
+LLaMA-3.1      base       NLI             -0.36        0.5520         -0.22        0.7177        
+LLaMA-3.1      base       Dialect         -0.09        0.8824         -0.21        0.7406        
+LLaMA-3.1      base       Sarcasm         -0.43        0.4685         -0.86        0.0613        
+LLaMA-3.1      base       Translation     0.70         0.1910         0.80         0.1041        
+LLaMA-3.1      base       Summarization   0.55         0.3398         0.30         0.6238        
+LLaMA-3.1      chat       MCQ             -0.34        0.5770         -0.10        0.8729        
+LLaMA-3.1      chat       NLI             -0.44        0.4615         -0.20        0.7471        
+LLaMA-3.1      chat       Dialect         0.05         0.9324         -0.21        0.7406        
+LLaMA-3.1      chat       Sarcasm         0.72         0.1703         0.69         0.1989        
+LLaMA-3.1      chat       Translation     0.98         0.0038 **      0.70         0.1881        
+LLaMA-3.1      chat       Summarization   -0.06        0.9180         0.00         1.0000        
+LLaMA-3.1      tuned      MCQ             -0.37        0.5350         -0.30        0.6238        
+LLaMA-3.1      tuned      NLI             -0.61        0.2704         -0.70        0.1881        
+LLaMA-3.1      tuned      Dialect         0.03         0.9643         0.00         1.0000        
+LLaMA-3.1      tuned      Sarcasm         -0.43        0.4724         0.05         0.9347        
+LLaMA-3.1      tuned      Translation     -0.07        0.9101         -0.10        0.8729        
+LLaMA-3.1      tuned      Summarization   -0.15        0.8135         0.30         0.6238        
+Qwen3          base       MCQ             -0.52        0.3701         -0.97        0.0048 **     
+Qwen3          base       NLI             0.42         0.4839         0.40         0.5046        
+Qwen3          base       Dialect         -0.06        0.9200         0.56         0.3217        
+Qwen3          base       Sarcasm         0.54         0.3496         0.52         0.3733        
+Qwen3          base       Translation     0.11         0.8557         0.30         0.6238        
+Qwen3          base       Summarization   -0.73        0.1646         -0.70        0.1881        
+Qwen3          chat       MCQ             -0.40        0.5002         -0.50        0.3910        
+Qwen3          chat       NLI             0.61         0.2780         0.53         0.3622        
+Qwen3          chat       Dialect         -0.36        0.5496         -0.15        0.8048        
+Qwen3          chat       Sarcasm         0.49         0.3987         0.41         0.4925        
+Qwen3          chat       Translation     -0.24        0.6924         0.60         0.2848        
+Qwen3          chat       Summarization   -0.41        0.4878         -0.40        0.5046        
+Qwen3          tuned      MCQ             -0.32        0.5953         -0.20        0.7471        
+Qwen3          tuned      NLI             -0.65        0.2369         -0.70        0.1881        
+Qwen3          tuned      Dialect         0.72         0.1740         0.67         0.2189        
+Qwen3          tuned      Sarcasm         -0.53        0.3560         -0.87        0.0539        
+Qwen3          tuned      Translation     -0.69        0.1993         -0.20        0.7471        
+Qwen3          tuned      Summarization   -1.00        0.0002 ***     -0.70        0.1881        
+
+
+====================================================================================================
+ANALYSIS 4: GENERALIZATION GAP
+====================================================================================================
+
+Gap = mean(intra-dataset scores) - mean(intra-task scores) per model x variant x task.
+Positive gap means the model degrades on the secondary (cross-dataset) evaluation.
+
+Model          Variant    Task            Intra-DS mean   Intra-Task mean  Gap mean     Gap std   
+--------------------------------------------------------------------------------------------------
+AceGPT-v2      base       MCQ             42.35           42.02            0.33         15.13     
+AceGPT-v2      base       NLI             52.82           50.14            2.68         4.11      
+AceGPT-v2      base       Dialect         17.68           16.44            1.24         2.59      
+AceGPT-v2      base       Sarcasm         72.63           57.17            15.46        39.09     
+AceGPT-v2      base       Translation     2.85            10.96            -8.11        4.68      
+AceGPT-v2      base       Summarization   0.15            2.17             -2.02        1.34      
+AceGPT-v2      chat       MCQ             46.01           57.00            -10.99       25.35     
+AceGPT-v2      chat       NLI             66.52           52.94            13.58        12.32     
+AceGPT-v2      chat       Dialect         19.89           24.02            -4.13        14.77     
+AceGPT-v2      chat       Sarcasm         71.01           57.16            13.85        37.02     
+AceGPT-v2      chat       Translation     12.12           15.78            -3.66        7.11      
+AceGPT-v2      chat       Summarization   0.17            1.03             -0.85        1.67      
+AceGPT-v2      tuned      MCQ             59.45           58.13            1.32         8.48      
+AceGPT-v2      tuned      NLI             94.34           56.49            37.85        2.54      
+AceGPT-v2      tuned      Dialect         90.60           33.72            56.88        8.32      
+AceGPT-v2      tuned      Sarcasm         78.18           57.10            21.08        39.41     
+AceGPT-v2      tuned      Translation     16.04           12.79            3.24         2.18      
+AceGPT-v2      tuned      Summarization   9.82            5.24             4.58         4.21      
+LLaMA-3.1      base       MCQ             39.95           44.67            -4.72        16.13     
+LLaMA-3.1      base       NLI             50.68           52.37            -1.69        1.21      
+LLaMA-3.1      base       Dialect         15.52           18.62            -3.10        4.17      
+LLaMA-3.1      base       Sarcasm         71.98           57.43            14.55        39.22     
+LLaMA-3.1      base       Translation     6.60            10.85            -4.25        4.83      
+LLaMA-3.1      base       Summarization   0.42            0.44             -0.01        0.31      
+LLaMA-3.1      chat       MCQ             44.03           49.00            -4.97        22.26     
+LLaMA-3.1      chat       NLI             62.16           54.08            8.08         9.76      
+LLaMA-3.1      chat       Dialect         16.56           26.33            -9.77        12.81     
+LLaMA-3.1      chat       Sarcasm         66.81           60.03            6.78         27.67     
+LLaMA-3.1      chat       Translation     7.81            11.91            -4.10        3.46      
+LLaMA-3.1      chat       Summarization   0.49            1.48             -0.99        0.73      
+LLaMA-3.1      tuned      MCQ             55.37           52.71            2.66         10.92     
+LLaMA-3.1      tuned      NLI             91.08           55.21            35.87        2.74      
+LLaMA-3.1      tuned      Dialect         88.96           27.18            61.77        6.95      
+LLaMA-3.1      tuned      Sarcasm         77.95           57.07            20.88        39.66     
+LLaMA-3.1      tuned      Translation     14.03           9.89             4.13         1.34      
+LLaMA-3.1      tuned      Summarization   6.37            5.49             0.87         1.45      
+Qwen3          base       MCQ             51.30           62.60            -11.30       23.78     
+Qwen3          base       NLI             76.00           62.09            13.91        15.30     
+Qwen3          base       Dialect         15.39           24.54            -9.15        13.81     
+Qwen3          base       Sarcasm         44.66           57.41            -12.75       32.68     
+Qwen3          base       Translation     8.77            9.73             -0.97        5.83      
+Qwen3          base       Summarization   0.32            0.46             -0.13        0.53      
+Qwen3          chat       MCQ             49.47           60.44            -10.97       27.48     
+Qwen3          chat       NLI             81.20           64.36            16.84        3.10      
+Qwen3          chat       Dialect         14.66           20.21            -5.55        9.93      
+Qwen3          chat       Sarcasm         50.45           59.20            -8.75        31.65     
+Qwen3          chat       Translation     8.60            13.02            -4.42        9.56      
+Qwen3          chat       Summarization   0.41            2.11             -1.70        1.79      
+Qwen3          tuned      MCQ             66.04           69.09            -3.05        7.65      
+Qwen3          tuned      NLI             93.96           55.69            38.27        3.26      
+Qwen3          tuned      Dialect         90.09           37.99            52.11        10.76     
+Qwen3          tuned      Sarcasm         77.45           57.26            20.20        39.60     
+Qwen3          tuned      Translation     14.12           9.86             4.27         1.89      
+Qwen3          tuned      Summarization   8.78            5.76             3.03         4.79      
+
+--- Kruskal-Wallis: Does the gap differ across models? ---
+H-statistic = 1.5636, p-value = 0.4576
+
+--- Kruskal-Wallis: Does the gap differ across tasks? ---
+H-statistic = 15.7511, p-value = 0.0076 **
+
+
+====================================================================================================
+ANALYSIS 5: EMPTY OUTPUT ANALYSIS FOR GENERATION TASKS
+====================================================================================================
+
+For generation tasks (Translation, Summarization), counts samples where the model
+produced empty or whitespace-only output. High empty rates depress BLEU scores.
+
+--- Per-Prompt Empty Output Rates ---
+Model          Variant    Task            Dataset                      Prompt   Total    Empty    Empty %    BLEU      
+-----------------------------------------------------------------------------------------------------------------------
+AceGPT-v2      base       Translation     opus-100                     14684    2000     494      24.70      4.16      
+AceGPT-v2      base       Translation     opus-100                     14688    2000     968      48.40      1.09      
+AceGPT-v2      base       Translation     opus-100                     14680    2000     1293     64.65      0.43      
+AceGPT-v2      base       Translation     opus-100                     14682    2000     681      34.05      3.77      
+AceGPT-v2      base       Translation     opus-100                     14640    2000     7        0.35       4.78      
+AceGPT-v2      base       Translation     tatoeba_mt                   14866    10000    1792     17.92      12.54     
+AceGPT-v2      base       Translation     tatoeba_mt                   14867    10000    7        0.07       12.10     
+AceGPT-v2      base       Translation     tatoeba_mt                   14868    10000    0        0.00       10.81     
+AceGPT-v2      base       Translation     tatoeba_mt                   14889    10000    0        0.00       14.62     
+AceGPT-v2      base       Translation     tatoeba_mt                   14890    10000    0        0.00       4.74      
+AceGPT-v2      base       Summarization   xlsum                        14871    4689     31       0.66       0.12      
+AceGPT-v2      base       Summarization   xlsum                        14803    4689     4455     95.01      0.00      
+AceGPT-v2      base       Summarization   xlsum                        14856    4689     0        0.00       0.29      
+AceGPT-v2      base       Summarization   xlsum                        14858    4689     4459     95.09      0.00      
+AceGPT-v2      base       Summarization   xlsum                        14668    4689     3710     79.12      0.33      
+AceGPT-v2      base       Summarization   AraSum                       14891    10000    554      5.54       2.76      
+AceGPT-v2      base       Summarization   AraSum                       14857    10000    0        0.00       2.70      
+AceGPT-v2      base       Summarization   AraSum                       14736    10000    224      2.24       3.18      
+AceGPT-v2      base       Summarization   AraSum                       14735    10000    4        0.04       2.21      
+AceGPT-v2      base       Summarization   AraSum                       14628    10000    9818     98.18      0.00      
+AceGPT-v2      chat       Translation     opus-100                     14684    2000     0        0.00       12.35     
+AceGPT-v2      chat       Translation     opus-100                     14688    2000     9        0.45       12.53     
+AceGPT-v2      chat       Translation     opus-100                     14680    2000     101      5.05       11.01     
+AceGPT-v2      chat       Translation     opus-100                     14682    2000     0        0.00       12.95     
+AceGPT-v2      chat       Translation     opus-100                     14640    2000     0        0.00       11.76     
+AceGPT-v2      chat       Translation     tatoeba_mt                   14866    10000    0        0.00       19.26     
+AceGPT-v2      chat       Translation     tatoeba_mt                   14867    10000    0        0.00       18.61     
+AceGPT-v2      chat       Translation     tatoeba_mt                   14868    10000    3        0.03       19.16     
+AceGPT-v2      chat       Translation     tatoeba_mt                   14889    10000    0        0.00       19.10     
+AceGPT-v2      chat       Translation     tatoeba_mt                   14890    10000    0        0.00       2.79      
+AceGPT-v2      chat       Summarization   xlsum                        14871    4689     185      3.95       0.63      
+AceGPT-v2      chat       Summarization   xlsum                        14803    4689     4392     93.67      0.00      
+AceGPT-v2      chat       Summarization   xlsum                        14856    4689     1903     40.58      0.09      
+AceGPT-v2      chat       Summarization   xlsum                        14858    4689     4364     93.07      0.00      
+AceGPT-v2      chat       Summarization   xlsum                        14668    4689     3730     79.55      0.15      
+AceGPT-v2      chat       Summarization   AraSum                       14891    10000    861      8.61       1.07      
+AceGPT-v2      chat       Summarization   AraSum                       14857    10000    9417     94.17      0.02      
+AceGPT-v2      chat       Summarization   AraSum                       14736    10000    0        0.00       3.91      
+AceGPT-v2      chat       Summarization   AraSum                       14735    10000    2        0.02       0.04      
+AceGPT-v2      chat       Summarization   AraSum                       14628    10000    4908     49.08      0.11      
+AceGPT-v2      tuned      Translation     opus-100                     14684    2000     0        0.00       16.24     
+AceGPT-v2      tuned      Translation     opus-100                     14688    2000     0        0.00       15.87     
+AceGPT-v2      tuned      Translation     opus-100                     14680    2000     0        0.00       15.92     
+AceGPT-v2      tuned      Translation     opus-100                     14682    2000     0        0.00       16.03     
+AceGPT-v2      tuned      Translation     opus-100                     14640    2000     0        0.00       16.13     
+AceGPT-v2      tuned      Translation     tatoeba_mt                   14866    10000    0        0.00       12.96     
+AceGPT-v2      tuned      Translation     tatoeba_mt                   14867    10000    0        0.00       13.60     
+AceGPT-v2      tuned      Translation     tatoeba_mt                   14868    10000    0        0.00       13.59     
+AceGPT-v2      tuned      Translation     tatoeba_mt                   14889    10000    0        0.00       14.65     
+AceGPT-v2      tuned      Translation     tatoeba_mt                   14890    10000    1        0.01       9.17      
+AceGPT-v2      tuned      Summarization   xlsum                        14871    4689     1        0.02       9.15      
+AceGPT-v2      tuned      Summarization   xlsum                        14803    4689     45       0.96       8.91      
+AceGPT-v2      tuned      Summarization   xlsum                        14856    4689     1        0.02       9.29      
+AceGPT-v2      tuned      Summarization   xlsum                        14858    4689     40       0.85       8.91      
+AceGPT-v2      tuned      Summarization   xlsum                        14668    4689     13       0.28       12.82     
+AceGPT-v2      tuned      Summarization   AraSum                       14891    10000    1189     11.89      5.73      
+AceGPT-v2      tuned      Summarization   AraSum                       14857    10000    1127     11.27      6.56      
+AceGPT-v2      tuned      Summarization   AraSum                       14736    10000    4        0.04       7.60      
+AceGPT-v2      tuned      Summarization   AraSum                       14735    10000    444      4.44       5.46      
+AceGPT-v2      tuned      Summarization   AraSum                       14628    10000    7619     76.19      0.84      
+LLaMA-3.1      base       Translation     opus-100                     14684    2000     0        0.00       8.02      
+LLaMA-3.1      base       Translation     opus-100                     14688    2000     0        0.00       8.74      
+LLaMA-3.1      base       Translation     opus-100                     14680    2000     35       1.75       4.68      
+LLaMA-3.1      base       Translation     opus-100                     14682    2000     18       0.90       8.13      
+LLaMA-3.1      base       Translation     opus-100                     14640    2000     0        0.00       3.42      
+LLaMA-3.1      base       Translation     tatoeba_mt                   14866    10000    0        0.00       10.77     
+LLaMA-3.1      base       Translation     tatoeba_mt                   14867    10000    0        0.00       14.55     
+LLaMA-3.1      base       Translation     tatoeba_mt                   14868    10000    0        0.00       14.18     
+LLaMA-3.1      base       Translation     tatoeba_mt                   14889    10000    0        0.00       14.56     
+LLaMA-3.1      base       Translation     tatoeba_mt                   14890    10000    0        0.00       0.17      
+LLaMA-3.1      base       Summarization   xlsum                        14871    4689     0        0.00       0.39      
+LLaMA-3.1      base       Summarization   xlsum                        14803    4689     2345     50.01      0.36      
+LLaMA-3.1      base       Summarization   xlsum                        14856    4689     0        0.00       0.06      
+LLaMA-3.1      base       Summarization   xlsum                        14858    4689     2435     51.93      0.32      
+LLaMA-3.1      base       Summarization   xlsum                        14668    4689     475      10.13      0.98      
+LLaMA-3.1      base       Summarization   AraSum                       14891    10000    0        0.00       0.31      
+LLaMA-3.1      base       Summarization   AraSum                       14857    10000    0        0.00       0.32      
+LLaMA-3.1      base       Summarization   AraSum                       14736    10000    0        0.00       0.08      
+LLaMA-3.1      base       Summarization   AraSum                       14735    10000    3054     30.54      0.83      
+LLaMA-3.1      base       Summarization   AraSum                       14628    10000    1360     13.60      0.65      
+LLaMA-3.1      chat       Translation     opus-100                     14684    2000     0        0.00       9.69      
+LLaMA-3.1      chat       Translation     opus-100                     14688    2000     0        0.00       8.11      
+LLaMA-3.1      chat       Translation     opus-100                     14680    2000     0        0.00       9.07      
+LLaMA-3.1      chat       Translation     opus-100                     14682    2000     0        0.00       8.98      
+LLaMA-3.1      chat       Translation     opus-100                     14640    2000     0        0.00       3.20      
+LLaMA-3.1      chat       Translation     tatoeba_mt                   14866    10000    0        0.00       15.07     
+LLaMA-3.1      chat       Translation     tatoeba_mt                   14867    10000    0        0.00       14.62     
+LLaMA-3.1      chat       Translation     tatoeba_mt                   14868    10000    0        0.00       13.90     
+LLaMA-3.1      chat       Translation     tatoeba_mt                   14889    10000    0        0.00       14.76     
+LLaMA-3.1      chat       Translation     tatoeba_mt                   14890    10000    0        0.00       1.20      
+LLaMA-3.1      chat       Summarization   xlsum                        14871    4689     0        0.00       0.54      
+LLaMA-3.1      chat       Summarization   xlsum                        14803    4689     0        0.00       0.35      
+LLaMA-3.1      chat       Summarization   xlsum                        14856    4689     0        0.00       0.04      
+LLaMA-3.1      chat       Summarization   xlsum                        14858    4689     0        0.00       0.40      
+LLaMA-3.1      chat       Summarization   xlsum                        14668    4689     1        0.02       1.11      
+LLaMA-3.1      chat       Summarization   AraSum                       14891    10000    0        0.00       1.20      
+LLaMA-3.1      chat       Summarization   AraSum                       14857    10000    0        0.00       0.92      
+LLaMA-3.1      chat       Summarization   AraSum                       14736    10000    0        0.00       2.33      
+LLaMA-3.1      chat       Summarization   AraSum                       14735    10000    0        0.00       1.10      
+LLaMA-3.1      chat       Summarization   AraSum                       14628    10000    0        0.00       1.83      
+LLaMA-3.1      tuned      Translation     opus-100                     14684    2000     0        0.00       14.35     
+LLaMA-3.1      tuned      Translation     opus-100                     14688    2000     0        0.00       14.26     
+LLaMA-3.1      tuned      Translation     opus-100                     14680    2000     0        0.00       13.66     
+LLaMA-3.1      tuned      Translation     opus-100                     14682    2000     0        0.00       13.81     
+LLaMA-3.1      tuned      Translation     opus-100                     14640    2000     0        0.00       14.05     
+LLaMA-3.1      tuned      Translation     tatoeba_mt                   14866    10000    0        0.00       10.56     
+LLaMA-3.1      tuned      Translation     tatoeba_mt                   14867    10000    0        0.00       10.34     
+LLaMA-3.1      tuned      Translation     tatoeba_mt                   14868    10000    0        0.00       10.67     
+LLaMA-3.1      tuned      Translation     tatoeba_mt                   14889    10000    0        0.00       10.30     
+LLaMA-3.1      tuned      Translation     tatoeba_mt                   14890    10000    2        0.02       7.60      
+LLaMA-3.1      tuned      Summarization   xlsum                        14871    4689     0        0.00       5.82      
+LLaMA-3.1      tuned      Summarization   xlsum                        14803    4689     30       0.64       5.78      
+LLaMA-3.1      tuned      Summarization   xlsum                        14856    4689     0        0.00       5.81      
+LLaMA-3.1      tuned      Summarization   xlsum                        14858    4689     27       0.58       5.76      
+LLaMA-3.1      tuned      Summarization   xlsum                        14668    4689     0        0.00       8.66      
+LLaMA-3.1      tuned      Summarization   AraSum                       14891    10000    0        0.00       5.48      
+LLaMA-3.1      tuned      Summarization   AraSum                       14857    10000    0        0.00       6.34      
+LLaMA-3.1      tuned      Summarization   AraSum                       14736    10000    0        0.00       5.35      
+LLaMA-3.1      tuned      Summarization   AraSum                       14735    10000    391      3.91       4.95      
+LLaMA-3.1      tuned      Summarization   AraSum                       14628    10000    306      3.06       5.36      
+Qwen3          base       Translation     opus-100                     14684    2000     44       2.20       9.91      
+Qwen3          base       Translation     opus-100                     14688    2000     35       1.75       7.46      
+Qwen3          base       Translation     opus-100                     14680    2000     1        0.05       9.44      
+Qwen3          base       Translation     opus-100                     14682    2000     0        0.00       8.42      
+Qwen3          base       Translation     opus-100                     14640    2000     12       0.60       8.60      
+Qwen3          base       Translation     tatoeba_mt                   14866    10000    27       0.27       15.22     
+Qwen3          base       Translation     tatoeba_mt                   14867    10000    0        0.00       14.23     
+Qwen3          base       Translation     tatoeba_mt                   14868    10000    0        0.00       10.11     
+Qwen3          base       Translation     tatoeba_mt                   14889    10000    19       0.19       8.63      
+Qwen3          base       Translation     tatoeba_mt                   14890    10000    340      3.40       0.47      
+Qwen3          base       Summarization   xlsum                        14871    4689     0        0.00       0.39      
+Qwen3          base       Summarization   xlsum                        14803    4689     1218     25.98      0.59      
+Qwen3          base       Summarization   xlsum                        14856    4689     718      15.31      0.05      
+Qwen3          base       Summarization   xlsum                        14858    4689     3735     79.65      0.38      
+Qwen3          base       Summarization   xlsum                        14668    4689     510      10.88      0.20      
+Qwen3          base       Summarization   AraSum                       14891    10000    191      1.91       0.65      
+Qwen3          base       Summarization   AraSum                       14857    10000    514      5.14       0.15      
+Qwen3          base       Summarization   AraSum                       14736    10000    817      8.17       0.98      
+Qwen3          base       Summarization   AraSum                       14735    10000    308      3.08       0.17      
+Qwen3          base       Summarization   AraSum                       14628    10000    402      4.02       0.33      
+Qwen3          chat       Translation     opus-100                     14684    2000     0        0.00       0.02      
+Qwen3          chat       Translation     opus-100                     14688    2000     0        0.00       10.49     
+Qwen3          chat       Translation     opus-100                     14680    2000     0        0.00       10.97     
+Qwen3          chat       Translation     opus-100                     14682    2000     0        0.00       10.85     
+Qwen3          chat       Translation     opus-100                     14640    2000     0        0.00       10.66     
+Qwen3          chat       Translation     tatoeba_mt                   14866    10000    0        0.00       16.31     
+Qwen3          chat       Translation     tatoeba_mt                   14867    10000    0        0.00       15.55     
+Qwen3          chat       Translation     tatoeba_mt                   14868    10000    0        0.00       16.71     
+Qwen3          chat       Translation     tatoeba_mt                   14889    10000    0        0.00       16.32     
+Qwen3          chat       Translation     tatoeba_mt                   14890    10000    0        0.00       0.20      
+Qwen3          chat       Summarization   xlsum                        14871    4689     0        0.00       0.23      
+Qwen3          chat       Summarization   xlsum                        14803    4689     0        0.00       1.23      
+Qwen3          chat       Summarization   xlsum                        14856    4689     0        0.00       0.38      
+Qwen3          chat       Summarization   xlsum                        14858    4689     0        0.00       0.14      
+Qwen3          chat       Summarization   xlsum                        14668    4689     0        0.00       0.07      
+Qwen3          chat       Summarization   AraSum                       14891    10000    0        0.00       3.21      
+Qwen3          chat       Summarization   AraSum                       14857    10000    0        0.00       0.88      
+Qwen3          chat       Summarization   AraSum                       14736    10000    0        0.00       2.66      
+Qwen3          chat       Summarization   AraSum                       14735    10000    0        0.00       0.12      
+Qwen3          chat       Summarization   AraSum                       14628    10000    0        0.00       3.71      
+Qwen3          tuned      Translation     opus-100                     14684    2000     0        0.00       14.36     
+Qwen3          tuned      Translation     opus-100                     14688    2000     0        0.00       13.52     
+Qwen3          tuned      Translation     opus-100                     14680    2000     0        0.00       13.83     
+Qwen3          tuned      Translation     opus-100                     14682    2000     0        0.00       14.01     
+Qwen3          tuned      Translation     opus-100                     14640    2000     0        0.00       14.90     
+Qwen3          tuned      Translation     tatoeba_mt                   14866    10000    0        0.00       10.76     
+Qwen3          tuned      Translation     tatoeba_mt                   14867    10000    0        0.00       10.53     
+Qwen3          tuned      Translation     tatoeba_mt                   14868    10000    0        0.00       9.59      
+Qwen3          tuned      Translation     tatoeba_mt                   14889    10000    0        0.00       11.02     
+Qwen3          tuned      Translation     tatoeba_mt                   14890    10000    0        0.00       7.38      
+Qwen3          tuned      Summarization   xlsum                        14871    4689     0        0.00       8.07      
+Qwen3          tuned      Summarization   xlsum                        14803    4689     19       0.41       8.05      
+Qwen3          tuned      Summarization   xlsum                        14856    4689     0        0.00       8.06      
+Qwen3          tuned      Summarization   xlsum                        14858    4689     18       0.38       8.11      
+Qwen3          tuned      Summarization   xlsum                        14668    4689     0        0.00       11.63     
+Qwen3          tuned      Summarization   AraSum                       14891    10000    0        0.00       7.35      
+Qwen3          tuned      Summarization   AraSum                       14857    10000    0        0.00       7.52      
+Qwen3          tuned      Summarization   AraSum                       14736    10000    24       0.24       6.80      
+Qwen3          tuned      Summarization   AraSum                       14735    10000    361      3.61       7.05      
+Qwen3          tuned      Summarization   AraSum                       14628    10000    8852     88.52      0.06      
+
+--- Aggregate Empty Rates (per model x variant x task) ---
+Model          Variant    Task            Avg Empty %    Total Samples   Total Empty   
+---------------------------------------------------------------------------------------
+AceGPT-v2      base       Translation     19.01          60000           5242          
+AceGPT-v2      base       Summarization   37.59          73445           23255         
+AceGPT-v2      chat       Translation     0.55           60000           113           
+AceGPT-v2      chat       Summarization   46.27          73445           29762         
+AceGPT-v2      tuned      Translation     0.00           60000           1             
+AceGPT-v2      tuned      Summarization   10.60          73445           10483         
+LLaMA-3.1      base       Translation     0.27           60000           53            
+LLaMA-3.1      base       Summarization   15.62          73445           9669          
+LLaMA-3.1      chat       Translation     0.00           60000           0             
+LLaMA-3.1      chat       Summarization   0.00           73445           1             
+LLaMA-3.1      tuned      Translation     0.00           60000           2             
+LLaMA-3.1      tuned      Summarization   0.82           73445           754           
+Qwen3          base       Translation     0.85           60000           478           
+Qwen3          base       Summarization   15.41          73445           8413          
+Qwen3          chat       Translation     0.00           60000           0             
+Qwen3          chat       Summarization   0.00           73445           0             
+Qwen3          tuned      Translation     0.00           60000           0             
+Qwen3          tuned      Summarization   9.32           73445           9274          
+
+--- Correlation: Empty Rate vs BLEU Score ---
+Computed across all model-variant-prompt combinations per task.
+Task            N      Pearson r    Pearson p     
+--------------------------------------------------
+Translation     90     -0.39        0.0002 ***    
+Summarization   90     -0.37        0.0003 ***    
+
+
+====================================================================================================
+END OF ANALYSIS
+====================================================================================================
