@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning"
+PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/star-instructions-tuning"
 
 mkdir -p "$PROJECT_DIR/slurm/logs"
 log_prefix="$PROJECT_DIR/slurm/logs/eval_multiple_runs"

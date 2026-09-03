@@ -1,4 +1,4 @@
-# Instructions Tuning: How Prompt Variation Affects Arabic LLM Performance
+# STAR: Instruction Tuning for Arabic Across Tasks, Datasets, and Models
 
 A systematic study of how different instruction prompts impact LLM fine-tuning and evaluation across 6 Arabic NLP tasks, 4 model families, and 12 datasets. This project fine-tunes models with LoRA, evaluates 3 model variants per family (base, chat, tuned), and measures per-prompt performance to quantify the effect of instruction formulation.
 
@@ -49,7 +49,7 @@ For each dataset, **5 approved prompts** are selected. During training, prompts 
 ## Project Structure
 
 ```
-instructions-tuning/
+star-instructions-tuning/
 ├── PythonExperiments/          # CLI-based training & evaluation pipelines
 │   ├── tune.py                 # Fine-tuning entry point (argparse)
 │   ├── run_eval.py             # Evaluation entry point (fire)
@@ -80,8 +80,8 @@ instructions-tuning/
 **Requirements:** Python 3.10-3.12, [uv](https://docs.astral.sh/uv/) package manager, CUDA-capable GPUs.
 
 ```bash
-git clone https://github.com/KFUPM-JRCAI/instructions-tuning.git
-cd instructions-tuning
+git clone https://github.com/KFUPM-JRCAI/star-instructions-tuning.git
+cd star-instructions-tuning
 uv sync
 ```
 
@@ -202,5 +202,5 @@ Evaluation uses [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluat
 The `evaluation_results/` directory was removed from Git LFS tracking and the repository history was rewritten to reduce LFS storage usage. If you had cloned this repo before this change, you will need to re-clone it:
 
 ```bash
-git clone https://github.com/KFUPM-JRCAI/instructions-tuning.git
+git clone https://github.com/KFUPM-JRCAI/star-instructions-tuning.git
 ```

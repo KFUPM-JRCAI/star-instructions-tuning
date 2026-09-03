@@ -1,5 +1,5 @@
 [project]
-name = "instructions-tuning"
+name = "star-instructions-tuning"
 version = "0.1.0"
 description = "Fine-tuning LLMs on Arabic datasets across various NLP tasks"
 readme = "README.md"

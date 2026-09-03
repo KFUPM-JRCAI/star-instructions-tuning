@@ -1735,7 +1735,7 @@ wheels = [
 ]
 
 [[package]]
-name = "instructions-tuning"
+name = "star-instructions-tuning"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

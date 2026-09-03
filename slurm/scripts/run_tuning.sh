@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning"
+PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/star-instructions-tuning"
 DRY_RUN=false
 if [[ "${1:-}" == "--dry-run" ]]; then
     DRY_RUN=true

@@ -22,7 +22,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from dotenv import load_dotenv
 
 # Add corekit to path
-sys.path.append('/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning/jrcai_corekit/llms_corekit')
+sys.path.append('/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/star-instructions-tuning/jrcai_corekit/llms_corekit')
 
 from llm import train_llm, LLMLoader, JAISInitializer, LoRAConfigRepository
 from llm.text_generator import TextGenerator

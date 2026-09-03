@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/instructions-tuning"
+PROJECT_DIR="/raid_storage/SLURM/home/slurm_majedalshaibani/Projects/star-instructions-tuning"
 cd "$PROJECT_DIR"
 
 mkdir -p ablations/dialect_explained_choices/slurm/logs
