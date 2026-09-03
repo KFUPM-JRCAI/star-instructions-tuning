@@ -94,7 +94,7 @@ STAR Templates is a curated collection of 355 Jinja2 instruction templates for A
 
 For these templates rendered against datasets samples, see the companion dataset: [STAR Instructions](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-instructions).
 
-📦 **Code:** the tuning and evaluation pipelines that use these templates live at [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
+📦 **Code:** the tuning and evaluation pipelines that use these templates can be accessed at [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
 
 ## Overview
 
