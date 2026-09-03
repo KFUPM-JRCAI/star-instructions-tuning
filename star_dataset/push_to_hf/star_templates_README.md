@@ -1,4 +1,27 @@
 ---
+pretty_name: STAR Templates
+language:
+  - ar
+multilinguality:
+  - monolingual
+size_categories:
+  - n<1K
+task_categories:
+  - text-generation
+  - text2text-generation
+  - text-classification
+  - token-classification
+  - translation
+  - summarization
+  - multiple-choice
+  - question-answering
+  - sentence-similarity
+tags:
+  - arabic
+  - instruction-tuning
+  - instruction-following
+  - prompts
+  - prompt-templates
 dataset_info:
   - config_name: all
     features:
@@ -68,29 +91,27 @@ configs:
 
 # STAR Templates
 
-A curated collection of Jinja2 instruction templates for Arabic NLP tasks, created through the PromptLab platform.
+STAR Templates is a curated collection of Jinja2 instruction templates for Arabic NLP tasks, spanning 27 task types across 87 source datasets. The templates were authored collaboratively using [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
+
+For these templates rendered against datasets samples, see the companion dataset: [STAR Instructions](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-instructions).
 
 ## Overview
 
 This dataset contains prompt templates designed for fine-tuning and evaluating large language models on Arabic NLP tasks. Each template is a Jinja2 string with a `|||` separator that divides the instruction input from the expected output.
 
-**Tasks covered (6):**
-- Dialect Identification
-- Machine Translation (Arabic-English)
-- Natural Language Inference (NLI)
-- Natural Language Understanding (NLU)
-- Sarcasm Detection
-- Summarization
+**Coverage:** the `all` catalog spans **27 task types** across **87 source datasets**. The best represented are dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, and diacritization. The long tail includes offensive language detection, emotion and topic classification, commonsense validation, poetry meter and era classification, named entity recognition, part-of-speech tagging, and math solving.
+
+The `experimental` subset described below is a deliberately narrow 6-task slice of this catalog, not the whole of it.
 
 ## Subsets
 
 ### `all`
 
-The full catalog of all approved templates from the PromptLab platform. Users can filter by `tasks`, `dataset_name`, or any other column.
+The full catalog of all 355 approved templates from the PromptLab platform. Users can filter by `tasks`, `dataset_name`, or any other column.
 
 ```python
 from datasets import load_dataset
-templates = load_dataset("KFUPM-JRCAI/star-templates", "all")
+templates = load_dataset("KFUPM-JRCAI/star-dataset-templates", "all")
 ```
 
 ### `experimental`
@@ -104,15 +125,15 @@ A curated set of 60 templates (5 per dataset, across 12 datasets) that were spec
 from datasets import load_dataset
 
 # Load tuning prompts (from primary datasets)
-tuning = load_dataset("KFUPM-JRCAI/star-templates", "experimental", split="tuning")
+tuning = load_dataset("KFUPM-JRCAI/star-dataset-templates", "experimental", split="tuning")
 
 # Load evaluation prompts (from secondary datasets)
-evaluation = load_dataset("KFUPM-JRCAI/star-templates", "experimental", split="evaluation")
+evaluation = load_dataset("KFUPM-JRCAI/star-dataset-templates", "experimental", split="evaluation")
 ```
 
 ## Experiment Setup
 
-Our experiments evaluate how different instruction prompts affect LLM performance on Arabic NLP tasks. We fine-tune two model families (AceGPT-7B and Meta-Llama-3.1-8B) and compare three variants per model: base, chat/instruct, and fine-tuned.
+Our experiments evaluate how different instruction prompts affect LLM performance on Arabic NLP tasks. We fine-tune four model families (AceGPT-v1-7B, AceGPT-v2-8B, Meta-Llama-3.1-8B, and Qwen3-8B) and compare three variants per model: base, chat/instruct, and fine-tuned.
 
 Each task has two datasets — a **primary** dataset (used for fine-tuning) and a **secondary** dataset (used for cross-dataset evaluation):
 
@@ -175,3 +196,23 @@ Consider this text: {{arabic}}. The dialect is: ||| {{answer_choices[label]}}
 | `experiment_task` | str | Task name for this experiment |
 | `dataset_role` | str | `primary` (tuning dataset) or `secondary` (cross-eval dataset) |
 | `paired_dataset` | str | The other dataset in the experiment pair |
+
+## Paper
+
+This dataset accompanies **[STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8)**, published in *Language Resources and Evaluation* (2026), which describes how the templates were collected and the experiments they were used for.
+
+If you use this dataset, please cite:
+
+```bibtex
+@article{alshaibani2026star,
+  title   = {STAR: instruction tuning for Arabic across tasks, datasets, and models},
+  author  = {Al-Shaibani, Maged S. and Alyafeai, Zaid and Ahmad, Irfan},
+  journal = {Language Resources and Evaluation},
+  volume  = {60},
+  number  = {4},
+  pages   = {69},
+  year    = {2026},
+  doi     = {10.1007/s10579-026-09942-8},
+  url     = {https://link.springer.com/article/10.1007/s10579-026-09942-8}
+}
+```

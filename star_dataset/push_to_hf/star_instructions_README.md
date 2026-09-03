@@ -1,4 +1,28 @@
 ---
+pretty_name: STAR Instructions
+language:
+  - ar
+multilinguality:
+  - monolingual
+size_categories:
+  - 10M<n<100M
+source_datasets:
+  - extended
+task_categories:
+  - text-generation
+  - text2text-generation
+  - text-classification
+  - token-classification
+  - translation
+  - summarization
+  - multiple-choice
+  - question-answering
+  - sentence-similarity
+tags:
+  - arabic
+  - instruction-tuning
+  - instruction-following
+  - prompts
 dataset_info:
   - config_name: default
     features:
@@ -34,22 +58,26 @@ dataset_info:
 
 # STAR Instructions
 
-A large-scale Arabic instruction-following dataset created by merging Jinja2 prompt templates with actual data samples across 6 NLP tasks.
+STAR Instructions is a large-scale Arabic instruction-tuning dataset built by rendering the STAR Jinja2 prompt templates against Arabic datasets from 87 source datasets across 27 NLP tasks. The underlying templates were authored collaboratively using [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
 
-For the raw templates and experiment design details, see the companion dataset: [star-templates](KFUPM-JRCAI/star-templates).
+For the raw templates and experiment design details, see the companion dataset: [STAR Templates](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-templates).
 
 ## Overview
 
 Each record in this dataset is created by rendering a Jinja2 prompt template against a real data sample, then splitting the result on `|||` to separate the instruction input from the expected output. The dataset preserves both the rendered instruction and the original template metadata.
 
-**Tasks covered (6):** Dialect Identification, Machine Translation, NLI, NLU, Sarcasm Detection, Summarization.
+**Tasks covered (27):** dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, diacritization, review classification, offensive language detection, emotion classification, commonsense validation, topic classification, math solving, era classification, yes/no question answering, claim verification, theme classification, targeted sentiment analysis, text classification, meter classification, named entity recognition, semantic similarity, part-of-speech tagging, and semantic question similarity.
+
+The six tasks used in the paper's fine-tuning experiments (dialect identification, machine translation, NLI, multiple choice, sarcasm detection, summarization) are a subset of these; filter by `instruction_template_id` against the `experimental` subset of the templates dataset to isolate them.
+
+**Size:** 46,263,378 rendered instructions in a single `train` split.
 
 ## Usage
 
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("KFUPM-JRCAI/star-instructions")
+ds = load_dataset("KFUPM-JRCAI/star-dataset-instructions")
 
 # Filter by task
 summarization = ds.filter(lambda x: 'summarization' in x['instruction_tasks'])
@@ -95,4 +123,24 @@ print(sample['instruction_template']) # The raw Jinja2 template
 
 ## Relationship to STAR Templates
 
-This dataset is derived from [star-templates](KFUPM-JRCAI/star-templates). Each record here corresponds to a template from that dataset applied to a specific data sample. The `instruction_template_id` column can be used to join with the templates dataset for experiment-level metadata (e.g., which prompts were selected for tuning vs. evaluation).
+This dataset is derived from [STAR Templates](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-templates). Each record here corresponds to a template from that dataset applied to a specific data sample. The `instruction_template_id` column can be used to join with the templates dataset for experiment-level metadata (e.g., which prompts were selected for tuning vs. evaluation).
+
+## Paper
+
+This dataset accompanies **[STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8)**, published in *Language Resources and Evaluation* (2026), which describes how the templates were collected and the experiments they were used for.
+
+If you use this dataset, please cite:
+
+```bibtex
+@article{alshaibani2026star,
+  title   = {STAR: instruction tuning for Arabic across tasks, datasets, and models},
+  author  = {Al-Shaibani, Maged S. and Alyafeai, Zaid and Ahmad, Irfan},
+  journal = {Language Resources and Evaluation},
+  volume  = {60},
+  number  = {4},
+  pages   = {69},
+  year    = {2026},
+  doi     = {10.1007/s10579-026-09942-8},
+  url     = {https://link.springer.com/article/10.1007/s10579-026-09942-8}
+}
+```

@@ -173,3 +173,8 @@ tmp
 openrouter_eval/cache
 evaluation_results*
 .vscode
+
+# Ablation island generated artifacts (source code is committed).
+ablations/*/data/
+ablations/*/results/
+ablations/*/slurm/logs/
