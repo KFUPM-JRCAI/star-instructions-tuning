@@ -180,6 +180,35 @@ def cohens_d(a, b):
     return (np.mean(b) - np.mean(a)) / pooled_std
 
 
+def cohens_d_bootstrap_ci(a, b, n_iter=1000, seed=42):
+    """Returns (d, ci_low, ci_high, n_skipped) using percentile bootstrap.
+
+    Skips degenerate resamples where pooled SD is zero (occasional at n=5).
+    """
+    if len(a) < 2 or len(b) < 2:
+        return None, None, None, 0
+    a = np.asarray(a, dtype=float)
+    b = np.asarray(b, dtype=float)
+    rng = np.random.default_rng(seed)
+    boot = []
+    skipped = 0
+    for _ in range(n_iter):
+        a_b = rng.choice(a, size=len(a), replace=True)
+        b_b = rng.choice(b, size=len(b), replace=True)
+        s_a = np.std(a_b, ddof=1)
+        s_b = np.std(b_b, ddof=1)
+        pooled = np.sqrt((s_a ** 2 + s_b ** 2) / 2)
+        if pooled == 0:
+            skipped += 1
+            continue
+        boot.append((np.mean(b_b) - np.mean(a_b)) / pooled)
+    if not boot:
+        return cohens_d(a, b), None, None, skipped
+    point = cohens_d(a, b)
+    lo, hi = np.percentile(boot, [2.5, 97.5])
+    return point, lo, hi, skipped
+
+
 def print_and_write(line, f):
     """Print to stdout and write to file."""
     print(line)
@@ -226,9 +255,9 @@ def tuning_significance(f):
                 chat_scores = get_valid_scores(load_scores(variants["chat"], internal_task, dataset))
                 tuned_scores = get_valid_scores(load_scores(variants["tuned"], internal_task, dataset))
 
-                base_str = f"{np.mean(base_scores):.2f}+/-{np.std(base_scores):.2f}" if len(base_scores) >= 2 else "N/A"
-                chat_str = f"{np.mean(chat_scores):.2f}+/-{np.std(chat_scores):.2f}" if len(chat_scores) >= 2 else "N/A"
-                tuned_str = f"{np.mean(tuned_scores):.2f}+/-{np.std(tuned_scores):.2f}" if len(tuned_scores) >= 2 else "N/A"
+                base_str = f"{np.mean(base_scores):.2f}+/-{np.std(base_scores, ddof=1):.2f}" if len(base_scores) >= 2 else "N/A"
+                chat_str = f"{np.mean(chat_scores):.2f}+/-{np.std(chat_scores, ddof=1):.2f}" if len(chat_scores) >= 2 else "N/A"
+                tuned_str = f"{np.mean(tuned_scores):.2f}+/-{np.std(tuned_scores, ddof=1):.2f}" if len(tuned_scores) >= 2 else "N/A"
 
                 # Wilcoxon tests require matched pairs of length >= 5
                 bt_p, bt_d = None, None
@@ -650,6 +679,272 @@ def empty_output_analysis(f):
 
 
 # ============================================================================
+# Analysis 7: Conditional BLEU on non-empty outputs
+# ============================================================================
+
+import re as _re
+
+_THINK_REGEX = _re.compile(r"<think>.*?</think>\s*", flags=_re.DOTALL)
+
+
+def _preprocess_translation(text):
+    """Replicates eval_harness_extra_tasks/{opus-100,tatoeba_mt}/metrics.py."""
+    if text is None:
+        return ""
+    text = text.strip()
+    text = _THINK_REGEX.sub("", text).strip()
+    if not text:
+        return ""
+    return text.splitlines()[0].strip()
+
+
+def _preprocess_summarization(text):
+    """Replicates eval_harness_extra_tasks/{AraSum,xlsum}/metrics.py."""
+    if text is None:
+        return ""
+    text = text.strip()
+    text = _THINK_REGEX.sub("", text).strip()
+    if not text:
+        return ""
+    text = text.replace("\n", " ")
+    return _re.sub(r"\s+", " ", text).strip()
+
+
+def conditional_bleu_analysis(f):
+    """For each generation cell, compute (a) original corpus BLEU, (b) corpus
+    BLEU restricted to non-empty predictions, (c) completion rate, replicating
+    the preprocessing in eval_harness_extra_tasks/*/metrics.py exactly.
+
+    Output: per-prompt rows aggregated to per-(model, variant, task, setting).
+    """
+    try:
+        from sacrebleu import BLEU
+    except ImportError:
+        print_and_write("\nANALYSIS 7 SKIPPED: sacrebleu not installed.", f)
+        return
+
+    bleu_scorer = BLEU()
+
+    print_and_write("\n" + "=" * 100, f)
+    print_and_write("ANALYSIS 7: CONDITIONAL BLEU ON NON-EMPTY OUTPUTS", f)
+    print_and_write("=" * 100, f)
+    print_and_write("", f)
+    print_and_write(
+        "For every generation cell, we report: original corpus BLEU (as in", f
+    )
+    print_and_write(
+        "Table 3), corpus BLEU restricted to non-empty predictions (after the", f
+    )
+    print_and_write(
+        "same preprocessing as eval_harness_extra_tasks/*/metrics.py), and the", f
+    )
+    print_and_write(
+        "completion rate (% of samples with non-empty output). Cell-level values", f
+    )
+    print_and_write(
+        "are means over the 5 prompts; per-prompt details follow each block.", f
+    )
+    print_and_write("", f)
+
+    # Build the work list: only generation tasks, both intra-DS and intra-task
+    rows = []
+    for model_name, variants in MODELS.items():
+        for variant_label in ["base", "chat", "tuned"]:
+            variant_dir = variants[variant_label]
+            for task_label, (internal_task, primary_ds, secondary_ds) in TASKS.items():
+                if internal_task not in GENERATION_TASKS:
+                    continue
+                preprocess = (
+                    _preprocess_translation if internal_task == "machine_translation"
+                    else _preprocess_summarization
+                )
+                for setting_label, dataset in [("intra-DS", primary_ds), ("intra-task", secondary_ds)]:
+                    rows.append((
+                        model_name, variant_label, task_label, setting_label,
+                        variant_dir, internal_task, dataset, preprocess,
+                    ))
+
+    # Process each prompt within each cell, then aggregate
+    cell_aggregate = []  # (model, variant, task, setting, mean_orig, mean_nonempty, mean_comp)
+    per_prompt_lines = []  # detailed per-prompt block
+
+    for (model_name, variant_label, task_label, setting_label,
+         variant_dir, internal_task, dataset, preprocess) in tqdm(rows, desc="Conditional BLEU"):
+
+        prompt_ids = PROMPT_IDS.get((internal_task, dataset), [])
+        prompt_orig = []
+        prompt_nonempty = []
+        prompt_comp = []
+        prompt_detail = []
+
+        for pid in prompt_ids:
+            path = EVAL_DIR / variant_dir / internal_task / dataset / f"prompt_{pid}.json"
+            if not path.exists():
+                continue
+            with open(path) as fp:
+                d = json.load(fp)
+            samples_dict = d.get("samples", {})
+            if not samples_dict:
+                continue
+            samples_key = next(iter(samples_dict))
+            samples = samples_dict[samples_key]
+
+            preds_all = []
+            refs_all = []
+            preds_nonempty = []
+            refs_nonempty = []
+            for s in samples:
+                raw = s.get("filtered_resps") or [""]
+                pred = preprocess(raw[0] if raw else "")
+                target = s.get("target") or ""
+                preds_all.append(pred)
+                refs_all.append(target)
+                if pred:
+                    preds_nonempty.append(pred)
+                    refs_nonempty.append(target)
+
+            n_total = len(preds_all)
+            n_nonempty = len(preds_nonempty)
+            comp_rate = (n_nonempty / n_total * 100) if n_total > 0 else 0.0
+
+            try:
+                orig_bleu = bleu_scorer.corpus_score(preds_all, [refs_all]).score
+            except Exception:
+                orig_bleu = float("nan")
+
+            if n_nonempty > 0:
+                try:
+                    nonempty_bleu = bleu_scorer.corpus_score(preds_nonempty, [refs_nonempty]).score
+                except Exception:
+                    nonempty_bleu = float("nan")
+            else:
+                nonempty_bleu = float("nan")
+
+            prompt_orig.append(orig_bleu)
+            prompt_nonempty.append(nonempty_bleu)
+            prompt_comp.append(comp_rate)
+            prompt_detail.append((pid, n_total, n_nonempty, comp_rate, orig_bleu, nonempty_bleu))
+
+        if prompt_orig:
+            mean_orig = float(np.nanmean(prompt_orig))
+            mean_ne = float(np.nanmean(prompt_nonempty))
+            mean_comp = float(np.nanmean(prompt_comp))
+        else:
+            mean_orig = mean_ne = mean_comp = float("nan")
+
+        cell_aggregate.append((
+            model_name, variant_label, task_label, setting_label,
+            mean_orig, mean_ne, mean_comp,
+        ))
+        per_prompt_lines.append((
+            f"{model_name} {variant_label} {task_label} ({setting_label}) [{dataset}]",
+            prompt_detail,
+        ))
+
+    # ---- Aggregate output table ----
+    print_and_write("--- Cell-level summary (mean over 5 prompts) ---", f)
+    header = (
+        f"{'Model':<14s} {'Variant':<8s} {'Task':<14s} {'Setting':<12s} "
+        f"{'Comp %':>8s} {'BLEU (orig)':>12s} {'BLEU (non-empty)':>18s}"
+    )
+    print_and_write(header, f)
+    print_and_write("-" * len(header), f)
+    for row in cell_aggregate:
+        m, v, t, s, mo, mne, mc = row
+        print_and_write(
+            f"{m:<14s} {v:<8s} {t:<14s} {s:<12s} "
+            f"{mc:>7.1f}% {mo:>12.2f} {mne:>18.2f}",
+            f,
+        )
+    print_and_write("", f)
+
+    # ---- Per-prompt details ----
+    print_and_write("--- Per-prompt details ---", f)
+    for header_str, details in per_prompt_lines:
+        print_and_write(f"\n{header_str}:", f)
+        if not details:
+            print_and_write("  (no data)", f)
+            continue
+        sub = (
+            f"  {'Prompt':<10s} {'N':>6s} {'NonEmpty':>10s} "
+            f"{'Comp %':>8s} {'BLEU (orig)':>12s} {'BLEU (non-empty)':>18s}"
+        )
+        print_and_write(sub, f)
+        for pid, ntot, nne, comp, ob, neb in details:
+            print_and_write(
+                f"  {pid:<10d} {ntot:>6d} {nne:>10d} "
+                f"{comp:>7.1f}% {ob:>12.2f} {neb:>18.2f}",
+                f,
+            )
+    print_and_write("", f)
+
+
+# ============================================================================
+# Analysis 6: Bootstrap 95% CIs for Cohen's d (rebuttal letter -- not paper)
+# ============================================================================
+
+def bootstrap_ci_for_cohens_d(f):
+    """Percentile bootstrap CIs for Cohen's d (1000 iterations, fixed seed).
+
+    Reported in the rebuttal letter only; paper tables retain point estimates.
+    At n=5 per group the bootstrap is approximate (see rebuttal for caveats).
+    """
+    print_and_write("\n" + "=" * 100, f)
+    print_and_write("ANALYSIS 6: BOOTSTRAP 95% CIs FOR COHEN'S d (REBUTTAL LETTER -- NOT IN PAPER)", f)
+    print_and_write("=" * 100, f)
+    print_and_write("", f)
+    print_and_write(
+        "Method: percentile bootstrap, 1000 iterations, seed=42, ddof=1.", f
+    )
+    print_and_write(
+        "Caveat: at n=5 per group, bootstrap is approximate; intervals are heuristic.", f
+    )
+    print_and_write("", f)
+
+    for setting_label, dataset_idx in [("Intra-dataset (primary)", 1),
+                                       ("Intra-task (secondary)", 2)]:
+        print_and_write(f"\n--- {setting_label} ---", f)
+        header = (
+            f"{'Model':<14s} {'Task':<15s} "
+            f"{'d (Base->Tuned) [95% CI]':<32s} "
+            f"{'d (Chat->Tuned) [95% CI]':<32s} "
+            f"{'skipped':>10s}"
+        )
+        print_and_write(header, f)
+        print_and_write("-" * len(header), f)
+
+        for model_name, variants in MODELS.items():
+            for task_label, (internal_task, primary_ds, secondary_ds) in TASKS.items():
+                dataset = primary_ds if dataset_idx == 1 else secondary_ds
+                base_scores = get_valid_scores(load_scores(variants["base"], internal_task, dataset))
+                chat_scores = get_valid_scores(load_scores(variants["chat"], internal_task, dataset))
+                tuned_scores = get_valid_scores(load_scores(variants["tuned"], internal_task, dataset))
+
+                bt = (None, None, None, 0)
+                ct = (None, None, None, 0)
+                if len(base_scores) == 5 and len(tuned_scores) == 5:
+                    bt = cohens_d_bootstrap_ci(base_scores, tuned_scores)
+                if len(chat_scores) == 5 and len(tuned_scores) == 5:
+                    ct = cohens_d_bootstrap_ci(chat_scores, tuned_scores)
+
+                def cell(d, lo, hi):
+                    if d is None:
+                        return "N/A"
+                    if lo is None or hi is None:
+                        return f"{d:.2f}"
+                    return f"{d:.2f} [{lo:.2f}, {hi:.2f}]"
+
+                print_and_write(
+                    f"{model_name:<14s} {task_label:<15s} "
+                    f"{cell(bt[0], bt[1], bt[2]):<32s} "
+                    f"{cell(ct[0], ct[1], ct[2]):<32s} "
+                    f"{(bt[3] + ct[3]):>10d}",
+                    f,
+                )
+    print_and_write("", f)
+
+
+# ============================================================================
 # Main
 # ============================================================================
 
@@ -687,12 +982,14 @@ def main():
                 print_and_write(f"  {model_name} {variant_label}: {found}/{total} scores loaded", f)
         print_and_write("", f)
 
-        # Run all five analyses
+        # Run all analyses
         tuning_significance(f)
         prompt_sensitivity(f)
         cross_dataset_correlation(f)
         generalization_gap(f)
         empty_output_analysis(f)
+        bootstrap_ci_for_cohens_d(f)
+        conditional_bleu_analysis(f)
 
         print_and_write("\n" + "=" * 100, f)
         print_and_write("END OF ANALYSIS", f)

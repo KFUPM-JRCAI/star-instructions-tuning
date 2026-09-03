@@ -2,7 +2,6 @@
 Diagnostic Error Analysis for Arabic Instruction Tuning Paper
 =============================================================
 Extracts failure-mode evidence from lm-evaluation-harness result files
-to address reviewer request for qualitative error analysis.
 
 Analyses:
   1. First-choice positional bias in classification tasks
@@ -353,7 +352,7 @@ def sarcasm_bimodal_failure():
                 else:
                     row.append(f"{'N/A':>7s}")
             avg = np.mean(accs) if accs else 0
-            std = np.std(accs) if len(accs) > 1 else 0
+            std = np.std(accs, ddof=1) if len(accs) > 1 else 0
             row += [f"{avg:7.1f}", f"{std:6.1f}"]
             print(" ".join(row))
 
@@ -452,8 +451,6 @@ def qualitative_case_studies():
     For each classification task, find the worst-performing prompt for a
     base/chat model and print concrete examples: the input text, gold label,
     predicted label, and log-prob distribution across choices.
-
-    This directly addresses the reviewer request for qualitative examples.
     """
     print("=" * 90)
     print("ANALYSIS 5: QUALITATIVE CASE STUDIES — CONCRETE FAILURE EXAMPLES")
