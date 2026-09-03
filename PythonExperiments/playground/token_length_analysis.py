@@ -26,25 +26,25 @@ MODEL_PATHS = {
 DATASETS_CONFIG = {
     "dialect_identification": {
         "AraBench_dev": {
-            "hf_path": "MagedSaeed/arabench_dev_experimental",
+            "hf_path": "KFUPM-JRCAI/arabench_dev_experimental",
             "input_col": "arabic",
             "splits": ["train", "test"],
         },
         "Arabic_Dialects_Dataset": {
-            "hf_path": "MagedSaeed/arabic_dialects_dataset_experimental",
+            "hf_path": "KFUPM-JRCAI/arabic_dialects_dataset_experimental",
             "input_col": "Text",
             "splits": ["test"],
         },
     },
     "summarization": {
         "xlsum": {
-            "hf_path": "MagedSaeed/xlsum_arabic_experimental",
+            "hf_path": "KFUPM-JRCAI/xlsum_arabic_experimental",
             "input_col": "text",
             "output_col": "target",
             "splits": ["train", "test"],
         },
         "AraSum": {
-            "hf_path": "MagedSaeed/AraSum_arabic_experimental",
+            "hf_path": "KFUPM-JRCAI/AraSum_arabic_experimental",
             "input_col": "article",
             "output_col": "summary",
             "splits": ["train", "test"],
@@ -52,13 +52,13 @@ DATASETS_CONFIG = {
     },
     "machine_translation": {
         "opus-100": {
-            "hf_path": "MagedSaeed/opus-100_ar_en_experimental",
+            "hf_path": "KFUPM-JRCAI/opus-100_ar_en_experimental",
             "input_col": "en",
             "output_col": "ar",
             "splits": ["train", "test"],
         },
         "tatoeba_mt": {
-            "hf_path": "MagedSaeed/tatoeba_mt_ara_eng_experimental",
+            "hf_path": "KFUPM-JRCAI/tatoeba_mt_ara_eng_experimental",
             "input_col": "sourceString",
             "output_col": "targetString",
             "splits": ["train", "test"],

@@ -38,8 +38,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="AraBench_dev",
         secondary_datasets=["Arabic_Dialects_Dataset"],
         hf_datasets={
-            "AraBench_dev": "MagedSaeed/arabench_dev_experimental",
-            "Arabic_Dialects_Dataset": "MagedSaeed/arabic_dialects_dataset_experimental",
+            "AraBench_dev": "KFUPM-JRCAI/arabench_dev_experimental",
+            "Arabic_Dialects_Dataset": "KFUPM-JRCAI/arabic_dialects_dataset_experimental",
         },
         prompt_ids={
             "AraBench_dev": [14852, 14850, 14789, 14781, 14561],
@@ -60,8 +60,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="opus-100",
         secondary_datasets=["tatoeba_mt"],
         hf_datasets={
-            "opus-100": "MagedSaeed/opus-100_ar_en_experimental",
-            "tatoeba_mt": "MagedSaeed/tatoeba_mt_ara_eng_experimental",
+            "opus-100": "KFUPM-JRCAI/opus-100_ar_en_experimental",
+            "tatoeba_mt": "KFUPM-JRCAI/tatoeba_mt_ara_eng_experimental",
         },
         prompt_ids={
             "opus-100": [14684, 14688, 14680, 14682, 14640],
@@ -85,8 +85,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="ArEntail",
         secondary_datasets=["ArabicTE"],
         hf_datasets={
-            "ArEntail": "MagedSaeed/ArEntail_experimental",
-            "ArabicTE": "MagedSaeed/ArabicTE_experimental",
+            "ArEntail": "KFUPM-JRCAI/ArEntail_experimental",
+            "ArabicTE": "KFUPM-JRCAI/ArabicTE_experimental",
         },
         prompt_ids={
             "ArEntail": [14581, 14816, 14818, 14819, 14820],
@@ -104,8 +104,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="ArabicMMLU",
         secondary_datasets=["belebele"],
         hf_datasets={
-            "ArabicMMLU": "MagedSaeed/ArabicMMLU_experimental",
-            "belebele": "MagedSaeed/belebele_experimental",
+            "ArabicMMLU": "KFUPM-JRCAI/ArabicMMLU_experimental",
+            "belebele": "KFUPM-JRCAI/belebele_experimental",
         },
         prompt_ids={
             "ArabicMMLU": [14571, 14869, 14787, 14797, 14798],
@@ -123,8 +123,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="ArSarcasm_v2",
         secondary_datasets=["iSarcasmEval_task"],
         hf_datasets={
-            "ArSarcasm_v2": "MagedSaeed/ArSarcasm_v2_experimental",
-            "iSarcasmEval_task": "MagedSaeed/iSarcasmEval_task_A_experimental",
+            "ArSarcasm_v2": "KFUPM-JRCAI/ArSarcasm_v2_experimental",
+            "iSarcasmEval_task": "KFUPM-JRCAI/iSarcasmEval_task_A_experimental",
         },
         prompt_ids={
             "ArSarcasm_v2": [14779, 14802, 14835, 14837, 14838],
@@ -145,8 +145,8 @@ EXPERIMENTS: dict[str, ExperimentConfig] = {
         primary_dataset="xlsum",
         secondary_datasets=["AraSum"],
         hf_datasets={
-            "xlsum": "MagedSaeed/xlsum_arabic_experimental",
-            "AraSum": "MagedSaeed/AraSum_arabic_experimental",
+            "xlsum": "KFUPM-JRCAI/xlsum_arabic_experimental",
+            "AraSum": "KFUPM-JRCAI/AraSum_arabic_experimental",
         },
         prompt_ids={
             "xlsum": [14871, 14803, 14856, 14858, 14668],
