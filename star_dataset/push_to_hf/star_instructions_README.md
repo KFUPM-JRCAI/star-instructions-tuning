@@ -10,7 +10,6 @@ source_datasets:
   - extended
 task_categories:
   - text-generation
-  - text2text-generation
   - text-classification
   - token-classification
   - translation
@@ -58,15 +57,17 @@ dataset_info:
 
 # STAR Instructions
 
-STAR Instructions is a large-scale Arabic instruction-tuning dataset built by rendering the STAR Jinja2 prompt templates against Arabic datasets from 87 source datasets across 27 NLP tasks. The underlying templates were authored collaboratively using [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
+STAR Instructions is a large-scale Arabic instruction-tuning dataset built by rendering the 355 STAR Jinja2 prompt templates against their 87 source datasets, covering 27 raw task labels (20 tasks after merging closely related categories, as reported in the paper). The underlying templates were authored collaboratively using [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
 
 For the raw templates and experiment design details, see the companion dataset: [STAR Templates](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-templates).
+
+📦 **Code:** the tuning and evaluation pipelines built on this dataset is accessible at [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
 
 ## Overview
 
 Each record in this dataset is created by rendering a Jinja2 prompt template against a real data sample, then splitting the result on `|||` to separate the instruction input from the expected output. The dataset preserves both the rendered instruction and the original template metadata.
 
-**Tasks covered (27):** dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, diacritization, review classification, offensive language detection, emotion classification, commonsense validation, topic classification, math solving, era classification, yes/no question answering, claim verification, theme classification, targeted sentiment analysis, text classification, meter classification, named entity recognition, semantic similarity, part-of-speech tagging, and semantic question similarity.
+**Tasks covered:** dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, diacritization, review classification, offensive language detection, emotion classification, commonsense validation, topic classification, math solving, era classification, yes/no question answering, claim verification, theme classification, targeted sentiment analysis, text classification, meter classification, named entity recognition, semantic similarity, part-of-speech tagging, and semantic question similarity.
 
 The six tasks used in the paper's fine-tuning experiments (dialect identification, machine translation, NLI, multiple choice, sarcasm detection, summarization) are a subset of these; filter by `instruction_template_id` against the `experimental` subset of the templates dataset to isolate them.
 
@@ -102,6 +103,8 @@ print(sample['instruction_template']) # The raw Jinja2 template
    - The record is stored with both the rendered instruction and template metadata
 4. Templates that produce invalid splits (multiple `|||` occurrences) are skipped
 
+The exact pipeline is a notebook in the repository: [`build_merged_instructions.ipynb`](https://github.com/KFUPM-JRCAI/star-instructions-tuning/blob/main/star_dataset/push_to_hf/build_merged_instructions.ipynb) renders every approved template against its source dataset and writes the merged Arrow dataset, and [`push_merged_instructions.ipynb`](https://github.com/KFUPM-JRCAI/star-instructions-tuning/blob/main/star_dataset/push_to_hf/push_merged_instructions.ipynb) uploads the result here. Read them to see exactly how any record in this dataset was produced, or to rebuild it yourself.
+
 ## Schema
 
 | Column | Type | Description |
@@ -121,13 +124,15 @@ print(sample['instruction_template']) # The raw Jinja2 template
 | `prompter_id` | str | Anonymized prompter identifier (a, b, c, ...) |
 | `split_name` | str | Source data split (`train`, `test`, or `validation`) |
 
-## Relationship to STAR Templates
+## Connection to STAR Templates
 
 This dataset is derived from [STAR Templates](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-templates). Each record here corresponds to a template from that dataset applied to a specific data sample. The `instruction_template_id` column can be used to join with the templates dataset for experiment-level metadata (e.g., which prompts were selected for tuning vs. evaluation).
 
 ## Paper
 
 This dataset accompanies **[STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8)**, published in *Language Resources and Evaluation* (2026), which describes how the templates were collected and the experiments they were used for.
+
+Code for the fine-tuning and evaluation experiments: [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
 
 If you use this dataset, please cite:
 

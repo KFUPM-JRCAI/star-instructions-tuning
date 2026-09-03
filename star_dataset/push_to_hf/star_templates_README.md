@@ -8,7 +8,6 @@ size_categories:
   - n<1K
 task_categories:
   - text-generation
-  - text2text-generation
   - text-classification
   - token-classification
   - translation
@@ -91,15 +90,17 @@ configs:
 
 # STAR Templates
 
-STAR Templates is a curated collection of Jinja2 instruction templates for Arabic NLP tasks, spanning 27 task types across 87 source datasets. The templates were authored collaboratively using [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
+STAR Templates is a curated collection of 355 Jinja2 instruction templates for Arabic NLP tasks, spanning 27 tasks across 87 source datasets, contributed by 7 prompters. The templates were authored collaboratively on [PromptLab](https://aclanthology.org/2026.eacl-demo.18/). This dataset and the experiments built on it are described in [STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8).
 
 For these templates rendered against datasets samples, see the companion dataset: [STAR Instructions](https://huggingface.co/datasets/KFUPM-JRCAI/star-dataset-instructions).
+
+📦 **Code:** the tuning and evaluation pipelines that use these templates live at [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
 
 ## Overview
 
 This dataset contains prompt templates designed for fine-tuning and evaluating large language models on Arabic NLP tasks. Each template is a Jinja2 string with a `|||` separator that divides the instruction input from the expected output.
 
-**Coverage:** the `all` catalog spans **27 task types** across **87 source datasets**. The best represented are dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, and diacritization. The long tail includes offensive language detection, emotion and topic classification, commonsense validation, poetry meter and era classification, named entity recognition, part-of-speech tagging, and math solving.
+**Coverage:** the `all` catalog spans **27 tasks** across **87 source datasets**. The best represented are dialect identification, summarization, sentiment analysis, stance detection, multiple choice, sarcasm detection, machine translation, NLI, question answering, and diacritization. The long tail includes offensive language detection, emotion and topic classification, commonsense validation, poetry meter and era classification, named entity recognition, part-of-speech tagging, and math solving.
 
 The `experimental` subset described below is a deliberately narrow 6-task slice of this catalog, not the whole of it.
 
@@ -133,7 +134,7 @@ evaluation = load_dataset("KFUPM-JRCAI/star-dataset-templates", "experimental", 
 
 ## Experiment Setup
 
-Our experiments evaluate how different instruction prompts affect LLM performance on Arabic NLP tasks. We fine-tune four model families (AceGPT-v1-7B, AceGPT-v2-8B, Meta-Llama-3.1-8B, and Qwen3-8B) and compare three variants per model: base, chat/instruct, and fine-tuned.
+Our experiments evaluate how different instruction prompts affect LLM performance on Arabic NLP tasks. The paper fine-tunes three model families - [AceGPT-v2-8B](https://huggingface.co/FreedomIntelligence/AceGPT-v2-8B), [Meta-Llama-3.1-8B](https://huggingface.co/meta-llama/Llama-3.1-8B), and [Qwen3-8B](https://huggingface.co/Qwen/Qwen3-8B-Base) - and compares three variants per model: base, chat/instruct, and LoRA fine-tuned. (The [accompanying repository](https://github.com/KFUPM-JRCAI/star-instructions-tuning) additionally carries results for an earlier AceGPT-v1-7B.)
 
 Each task has two datasets — a **primary** dataset (used for fine-tuning) and a **secondary** dataset (used for cross-dataset evaluation):
 
@@ -156,7 +157,7 @@ The model fine-tuned on a primary dataset is evaluated on a **different dataset 
 
 ## Template Format
 
-Templates use [Jinja2](https://jinja.palletsprojects.com/) syntax with `{{variable}}` placeholders. The `|||` separator divides the input (left) from the expected output (right):
+Templates use [Jinja2](https://jinja.palletsprojects.com/) syntax with `{{variable}}` placeholders. The `|||` separator divides the input (left) from the expected output (right). See the below example:
 
 ```
 You are an expert Arabic text summarizer. The following article:
@@ -172,7 +173,7 @@ For classification tasks, templates may include `answer_choices`:
 Consider this text: {{arabic}}. The dialect is: ||| {{answer_choices[label]}}
 ```
 
-## Schema
+## Dataset Schema
 
 ### `all` subset
 
@@ -200,6 +201,8 @@ Consider this text: {{arabic}}. The dialect is: ||| {{answer_choices[label]}}
 ## Paper
 
 This dataset accompanies **[STAR: instruction tuning for Arabic across tasks, datasets, and models](https://link.springer.com/article/10.1007/s10579-026-09942-8)**, published in *Language Resources and Evaluation* (2026), which describes how the templates were collected and the experiments they were used for.
+
+Code for the fine-tuning and evaluation experiments: [github.com/KFUPM-JRCAI/star-instructions-tuning](https://github.com/KFUPM-JRCAI/star-instructions-tuning).
 
 If you use this dataset, please cite:
 
